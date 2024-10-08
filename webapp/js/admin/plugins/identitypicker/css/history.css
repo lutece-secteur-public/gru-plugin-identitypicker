@@ -1,0 +1,180 @@
+.ip-timeline {
+    position: relative;
+    border-left: 1px solid var(--ip-border);
+    margin-left: 6px;
+}
+
+.ip-timeline-item {
+    position: relative;
+}
+
+.ip-timeline-point {
+    background-color: var(--ip-border);
+    border-radius: 50%;
+    height: 12px;
+    left: -7px;
+    position: absolute;
+    top: 21px;
+    width: 12px;
+}
+
+.ip-timeline-content {
+    padding: 15px;
+}
+
+.ip-timeline-content .date {
+    color: var(--ip-text-light);
+    font-size: 12px;
+    letter-spacing: .1rem;
+    margin: 0;
+}
+
+.ip-timeline-content .code {
+    color: var(--ip-text-extra-light);
+    font-size: 10px;
+    margin: 0;
+}
+
+button.ip-copy-button {
+    margin-top:5px;
+    padding: 5px;
+    background:#fff;
+    color: var(--ip-text);
+    font-size: 10px;
+}
+
+button.ip-copy-button:hover {
+    background: var(--ip-table-td-hover-bg);
+}
+
+
+
+.ip-identity-change-header {
+    margin-bottom: 10px;
+}
+
+.ip-timeline .change-type {
+    font-weight: bold;
+    color: var(--ip-text);
+    margin-bottom: 5px;
+}
+
+.ip-identity-change-header .change-info {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.ip-change-status {
+    font-style: italic;
+    color: #28a745;
+    margin-bottom: 5px;
+}
+
+.ip-change-message {
+    display: block;
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.ip-attribute-changes-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.ip-attribute-changes-table th,
+.ip-attribute-changes-table td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+}
+
+.ip-attribute-changes-table th {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+
+.ip-attribute-changes-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+
+.ip-date-and-types {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    justify-content: space-between;
+}
+.ip-event-types {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.ip-event-type {
+    margin-right: 5px;
+}
+
+.ip-event-type.identity { color: #007bff; }
+.ip-event-type.attribute { color: #28a745; }
+.ip-event-type.task { color: #ffc107; }
+
+.ip-search-bar {
+    position: sticky;
+    top: 0px;
+    z-index: 2; 
+    background-color: var(--ip-table-separator-bg);
+    padding-top:20px;
+    padding-bottom:20px;
+}
+
+
+.ip-search-input {
+    border-radius: 40px !important;
+  }
+  
+
+
+.ip-side-container  .ip-content-area {
+    padding-top:10px;
+    padding-right: 25px;
+}
+
+
+.ip-view-task-history {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: var(--ip-primary);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .ip-view-task-history:hover {
+    background-color: var(--ip-primary-dark);
+  }
+  
+  .ip-full-task-history {
+    padding: 20px;
+  }
+  
+  .ip-task-history-item {
+    border-bottom: 1px solid var(--ip-border);
+    padding: 10px 0;
+  }
+  
+  .ip-task-history-item span {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .ip-task-history-date {
+    font-weight: bold;
+  }
+  
+  .ip-task-history-change,
+  .ip-task-history-status,
+  .ip-task-history-author {
+    color: var(--ip-text-light);
+  }

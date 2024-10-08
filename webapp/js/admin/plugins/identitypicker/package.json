@@ -1,0 +1,28 @@
+{
+  "name": "identitypicker",
+  "version": "1.0.0",
+  "description": "Identity Picker js plugin",
+  "main": "dist/identitypicker.min.js",
+  "type": "module",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production rollup -c",
+    "dev": "rollup -c -w"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "cross-env": "^7.0.3",
+    "rollup": "^4.23.0",
+    "rollup-plugin-css-only": "^4.5.2",
+    "rollup-plugin-postcss": "^4.0.2",
+    "sass": "^1.79.4"
+  },
+  "dependencies": {
+    "choices.js": "^11.0.2",
+    "fuse.js": "^7.0.0"
+  }
+}
