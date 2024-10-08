@@ -1,0 +1,110 @@
+.ip-search-container,
+.ip-results-container {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.ip-search-container.active,
+.ip-results-container.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ip-result-item, .ip-timeline-item {
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.ip-result-item:nth-child(1),
+.ip-timeline-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.ip-result-item:nth-child(2),
+.ip-timeline-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.ip-result-item:nth-child(3),
+.ip-timeline-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.ip-result-item:nth-child(4),
+.ip-timeline-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.ip-result-item:nth-child(5),
+.ip-timeline-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.ip-result-item:nth-child(6),
+.ip-timeline-item:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.ip-result-item:nth-child(7),
+.ip-timeline-item:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+.ip-result-item:nth-child(8),
+.ip-timeline-item:nth-child(8) {
+  animation-delay: 0.8s;
+}
+
+.ip-result-item:nth-child(9),
+.ip-timeline-item:nth-child(9) {
+  animation-delay: 0.9s;
+}
+
+.ip-result-item:nth-child(10),
+.ip-timeline-item:nth-child(10) {
+  animation-delay: 1s;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.ip-modal button:focus {
+  animation: pulse 0.5s ease-in-out;
+}

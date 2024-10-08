@@ -1,0 +1,266 @@
+.ip-body {
+  overflow: hidden;
+}
+
+.ip-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: background-color 0.3s ease;
+  justify-content: center;
+  align-items: center;
+}
+
+.ip-modal-content {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ip-bg);
+  color: var(--ip-text);
+  padding: 0px;
+  border-radius: 30px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), width 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.ip-modal-content.wide-view {
+  max-width: 900px;
+}
+
+.with-side-container > .ip-header > .ip-header-container {
+  margin: 24px 0px 0;
+}
+
+.ip-close, .ip-back {
+  transition: transform 0.2s ease;
+}
+
+.with-side-container > .ip-header > .ip-header-container .ip-close {
+  margin-right: 30px;
+}
+
+.with-side-container > .ip-header > .ip-header-container .ip-back {
+  margin-left: 30px;
+}
+
+
+.ip-modal-content.with-side-container {
+  max-width: 1280px;
+}
+
+.ip-container-header-btns {
+  min-width: 400px;
+  text-align: end;
+}
+
+.ip-modal-open .ip-modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.ip-header {
+  position: sticky;
+  top: 0;
+  background-color: var(--ip-bg);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.ip-header .ip-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 24px 40px 0px;
+  border-bottom: 1px solid var(--ip-border);
+  padding-bottom: 24px;
+}
+
+.ip-back {
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  transition: transform 0.2s ease;
+}
+
+.ip-back:hover {
+  transform: translateX(-3px);
+}
+
+.ip-modal h2 {
+  color: var(--ip-text);
+  margin: 0;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.ip-main-container {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.ip-scrollable-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+  min-width: 0;
+}
+
+.ip-scrollable-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ip-scrollable-content::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.5);
+}
+
+.ip-scrollable-content::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.ip-content-area {
+  padding: 24px 40px;
+  min-height: 100%;
+}
+
+.ip-side-container {
+  width: 400px;
+  background-color: var(--ip-table-separator-bg);
+  border-left: 1px solid var(--ip-border);
+  transition: transform 0.3s ease;
+  overflow-y: hidden;
+  position: relative;
+}
+
+.ip-side-container .ip-header {
+  background-color: var(--ip-table-separator-bg);
+}
+
+.ip-side-container.overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  width: 100%;
+  border-left: none;
+  border-top: 1px solid var(--ip-border);
+}
+
+.ip-side-container.overlay.open {
+  transform: translateX(0);
+}
+
+.ip-side-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.ip-search-container,
+.ip-results-container {
+  position: relative;
+  width: 100%;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  min-height: 100%;
+}
+
+.ip-results-container {
+  min-height: 100px;
+}
+
+.ip-container-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  padding-top: 10px;
+  position: sticky;
+  top: 0;
+  background: var(--ip-bg);
+  border-bottom: 1px solid var(--ip-border);
+}
+
+.ip-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ip-container-header h3 {
+  color: var(--ip-text);
+  margin: 0;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+.ip-container-header p {
+  font-size: 12px;
+  letter-spacing: 0.1rem;
+  margin: 0;
+}
+
+.ip-result-details p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.ip-details-container h4 {
+  margin: 0;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.ip-container-buttons {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  position: sticky;
+  bottom: 0;
+  background: var(--ip-bg);
+  border-top: 1px solid var(--ip-border);
+}
+
+.ip-container-buttons button {
+  width: 100%;
+}
+
+.ip-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--ip-border);
+  padding: 15px;
+  text-align: center;
+  background-color: var(--ip-bg);
+}
+
+.ip-details-container,
+.ip-create-identity-container {
+  min-height: 100%;
+}
+
+@media (max-width: 1200px) {
+  .ip-modal-content {
+    flex-direction: column;
+  }
+
+  .ip-modal-content.with-side-container .ip-scrollable-content {
+    width: 100%;
+  }
+}

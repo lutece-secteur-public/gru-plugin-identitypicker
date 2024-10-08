@@ -1,0 +1,193 @@
+.ip-results-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+  border: 1px solid var(--ip-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ip-result-item {
+  padding: 20px;
+  margin: 0;
+  border-bottom: 1px solid var(--ip-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.ip-result-item:last-child {
+  border-bottom: none;
+}
+
+.ip-result-item:hover {
+  background-color: var(--ip-table-td-hover-bg);
+  cursor: pointer;
+}
+
+.ip-result-left {
+  flex: 1;
+  margin-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.ip-result-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.ip-result-header,
+.ip-result-details {
+  width: 100%;
+  text-align: left;
+}
+
+.ip-result-header h3 {
+  color: var(--ip-text);
+  margin: 0;
+  font-size: 14px !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.ip-preferred-name {
+  font-style: italic;
+  margin: 4px 0 0;
+  font-weight: 400;
+}
+
+.ip-result-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ip-result-details p {
+  margin: 0;
+}
+
+.ip-result-details i {
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+}
+
+.ip-compare-table-container {
+  overflow: auto;
+  max-height: 70vh;
+  margin-bottom: 20px;
+  position: relative;
+  border: 1px solid var(--ip-border);
+  border-radius: 8px;
+}
+
+.ip-compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.ip-compare-table th,
+.ip-compare-table td {
+  padding: 12px;
+  min-width: 200px;
+}
+
+.ip-compare-table th {
+  border-top: 1px solid var(--ip-border);
+  border-bottom: 1px solid var(--ip-border);
+  border-right: 1px solid var(--ip-border);
+  background-color: var(--ip-table-separator-bg);
+}
+
+.ip-compare-table td {
+  border-bottom: 1px solid var(--ip-border);
+  border-right: 1px solid var(--ip-border);
+  background-color: var(--ip-bg);
+}
+
+.ip-compare-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--ip-table-separator-bg);
+  border-top: none;
+}
+
+.ip-compare-table tbody td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: var(--ip-table-separator-bg);
+  border-left: none;
+}
+
+.ip-compare-table tfoot th {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background-color: var(--ip-table-separator-bg);
+}
+
+.ip-compare-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+
+.ip-compare-table tr.ip-group-separator td.ip-table-separator {
+  background-color: var(--ip-table-separator-bg);
+  font-weight: bold;
+}
+
+.ip-compare-table tr.ip-group-separator td.ip-group-label {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: var(--ip-table-separator-bg);
+  min-width: 200px;
+}
+
+.ip-compare-table tbody tr:hover td {
+  background-color: var(--ip-table-td-hover-bg);
+}
+
+.ip-compare-table tbody tr:hover td:first-child {
+  background-color: var(--ip-table-separator-bg);
+}
+
+.ip-high,
+.ip-percentage-high,
+.ip-active {
+  color: #28a745;
+}
+
+.ip-medium,
+.ip-percentage-medium {
+  color: #ff6507;
+}
+
+.ip-low,
+.ip-percentage-low,
+.ip-inactive {
+  color: #dc3545;
+}
+
+.ip-highlight {
+  background-color: rgba(255, 0, 0, 0.2);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.ip-difference {
+  background-color: #f8d7da;
+  color: #ff002d;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0 5px;
+}

@@ -1,0 +1,86 @@
+.ip-info-tags {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.ip-info-tag {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.ip-info-tag strong {
+  display: block;
+}
+
+.ip-tag-default {
+  background-color: var(--ip-tag-bg-default) !important;
+  color: var(--ip-tag-text-default);
+  border-color: var(--ip-tag-border-default);
+}
+
+.ip-tag-success {
+  background-color: var(--ip-tag-bg-success) !important;
+  color: var(--ip-tag-text-success);
+  border-color: var(--ip-tag-border-success);
+}
+
+.ip-tag-warning {
+  background-color: var(--ip-tag-bg-warning) !important;
+  color: var(--ip-tag-text-warning);
+  border-color: var(--ip-tag-border-warning);
+}
+
+.ip-tag-error {
+  background-color: var(--ip-tag-bg-error) !important;
+  color: var(--ip-tag-text-error);
+  border-color: var(--ip-tag-border-error);
+}
+
+.ip-tag-identity {
+  background-color: var(--ip-tag-bg-blue) !important;
+  color: var(--ip-tag-text-blue);
+  border-color: var(--ip-tag-border-blue);
+}
+
+.ip-tag-attribute {
+  background-color: var(--ip-tag-bg-purple) !important;
+  color: var(--ip-tag-text-purple);
+  border-color: var(--ip-tag-border-purple);
+}
+
+.ip-tag-green {
+  background-color: var(--ip-tag-bg-green) !important;
+  color: var(--ip-tag-text-green);
+  border-color: var(--ip-tag-border-green);
+}
+
+.ip-tag-task {
+  background-color: var(--ip-tag-bg-yellow) !important;
+  color: var(--ip-tag-text-yellow);
+  border-color: var(--ip-tag-border-yellow);
+}
+
+
+.ip-mini-tag {
+  display: inline-block;
+  padding: 2px 5px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  background: var(--ip-border);
+  margin: 2px;
+  letter-spacing: .1rem;
+}
