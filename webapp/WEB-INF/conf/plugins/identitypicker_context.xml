@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+       <bean id="identitypicker.identityRest"
+              class="fr.paris.lutece.plugins.identitypicker.service.rs.IdentityRestService"></bean>
+
+       <bean id="identitystore.httpAccessTransport"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.rs.service.HttpAccessTransport">
+              <property name="ApiEndPointUrl">
+                     <value>${identitypicker.identitystore.ApiEndPointUrl}</value>
+              </property>
+       </bean>
+
+       <bean id="identity.restTransport.httpAccess"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.rs.service.IdentityTransportRest">
+              <constructor-arg ref="identitystore.httpAccessTransport"></constructor-arg>
+       </bean>
+       <bean id="identity.identityService"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.service.IdentityService">
+              <constructor-arg ref="identity.restTransport.httpAccess"></constructor-arg>
+       </bean>
+
+       <bean id="referential.restTransport.httpAccess"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.rs.service.ReferentialTransportRest">
+              <constructor-arg ref="identitystore.httpAccessTransport"></constructor-arg>
+              <constructor-arg value="${identitypicker.identityquality.endpoint.identityPath}"></constructor-arg>
+       </bean>
+
+       <bean id="identity.ReferentialService"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.service.ReferentialService">
+              <constructor-arg ref="referential.restTransport.httpAccess"></constructor-arg>
+       </bean>
+
+       <bean id="serviceContract.restTransport.httpAccess"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.rs.service.ServiceContractTransportRest">
+              <constructor-arg ref="identitystore.httpAccessTransport"></constructor-arg>
+              <constructor-arg value="${identitypicker.identityquality.endpoint.identityPath}"></constructor-arg>
+       </bean>
+
+       <bean id="identity.serviceContractService"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.service.ServiceContractServiceExtended">
+              <constructor-arg ref="serviceContract.restTransport.httpAccess"></constructor-arg>
+       </bean>
+
+       <bean id="restTransport.identity.httpAccess"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.rs.service.IdentityTransportRest">
+              <constructor-arg ref="httpAccessTransport-ids"></constructor-arg>
+              <constructor-arg value="${identitypicker.identityquality.endpoint.identityPath}"></constructor-arg>
+              <constructor-arg value="${identitypicker.identityquality.endpoint.stackTaskPath}"></constructor-arg>
+       </bean>
+
+       <bean id="identityService.rest.httpAccess" class="fr.paris.lutece.plugins.identitystore.v3.web.service.IdentityServiceExtended">
+              <constructor-arg ref="restTransport.identity.httpAccess"/>
+       </bean>
+
+       <bean id="httpAccessTransport-ids"
+              class="fr.paris.lutece.plugins.identitystore.v3.web.rs.service.HttpAccessTransport">
+              <property name="apiEndPointUrl">
+                     <value>${identitypicker.identitystore.ApiEndPointUrl}</value>
+              </property>
+       </bean>
+</beans>

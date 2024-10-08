@@ -1,0 +1,120 @@
+.lutece-identitypicker-modal button,
+.lutece-identitypicker-modal .lutece-identitypicker-button {
+  background-color: var(--ip-button-bg);
+  color: var(--ip-button-text);
+  border: 0px solid var(--ip-button-border);
+  padding: 12px 20px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+}
+
+
+.lutece-identitypicker-modal .lutece-identitypicker-button-mini {
+  padding: 2px 10px;
+}
+
+.lutece-identitypicker-modal .lutece-identitypicker-button-red {
+  background-color: #e93870;
+}
+
+.lutece-identitypicker-modal .lutece-identitypicker-button-red:hover {
+  background-color: #ff0051;
+}
+
+.lutece-identitypicker-modal .lutece-identitypicker-button-yellow {
+  background-color: #fff2c4;
+color: #644d0d;
+}
+
+.lutece-identitypicker-modal .lutece-identitypicker-button-yellow:hover {
+  background-color: #fae9ac;
+}
+
+
+
+.lutece-identitypicker-modal button:disabled,
+.lutece-identitypicker-modal .lutece-identitypicker-button:disabled {
+  background-color: var(--ip-button-disabled);
+  color: var(--ip-button-text-disabled);
+  cursor: not-allowed;
+}
+
+.lutece-identitypicker-modal .lutece-identitypicker-button-light {
+  background-color: var(--ip-button-close-bg);
+  border: 0px solid var(--ip-button-close-border);
+  color: var(--ip-button-close-text);
+}
+
+.lutece-identitypicker-side-container .lutece-identitypicker-button-rounded {
+  margin-top: -15px;
+}
+
+.lutece-identitypicker-modal .lutece-identitypicker-button-light:hover {
+  background-color: var(--ip-button-close-hover);
+}
+
+.lutece-identitypicker-modal button:hover,
+.lutece-identitypicker-modal .lutece-identitypicker-button:hover {
+  background-color: var(--ip-button-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.lutece-identitypicker-modal button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.lutece-identitypicker-modal button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.lutece-identitypicker-modal button:focus:not(:active)::after,
+.lutece-identitypicker-modal .lutece-identitypicker-button:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+.lutece-identitypicker-modal .lutece-identitypicker-button-rounded {
+  border-radius: 30px;
+  height: 30px;
+  width: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lutece-identitypicker-side-close {
+  font-size:13px !important;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 1;
+  }
+
+  20% {
+    transform: scale(25, 25);
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}

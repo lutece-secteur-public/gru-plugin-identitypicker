@@ -1,0 +1,110 @@
+.lutece-identitypicker-search-container,
+.lutece-identitypicker-results-container {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.lutece-identitypicker-search-container.active,
+.lutece-identitypicker-results-container.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lutece-identitypicker-result-item, .lutece-identitypicker-timeline-item {
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.lutece-identitypicker-result-item:nth-child(1),
+.lutece-identitypicker-timeline-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.lutece-identitypicker-result-item:nth-child(2),
+.lutece-identitypicker-timeline-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.lutece-identitypicker-result-item:nth-child(3),
+.lutece-identitypicker-timeline-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.lutece-identitypicker-result-item:nth-child(4),
+.lutece-identitypicker-timeline-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.lutece-identitypicker-result-item:nth-child(5),
+.lutece-identitypicker-timeline-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.lutece-identitypicker-result-item:nth-child(6),
+.lutece-identitypicker-timeline-item:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.lutece-identitypicker-result-item:nth-child(7),
+.lutece-identitypicker-timeline-item:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+.lutece-identitypicker-result-item:nth-child(8),
+.lutece-identitypicker-timeline-item:nth-child(8) {
+  animation-delay: 0.8s;
+}
+
+.lutece-identitypicker-result-item:nth-child(9),
+.lutece-identitypicker-timeline-item:nth-child(9) {
+  animation-delay: 0.9s;
+}
+
+.lutece-identitypicker-result-item:nth-child(10),
+.lutece-identitypicker-timeline-item:nth-child(10) {
+  animation-delay: 1s;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.lutece-identitypicker-modal button:focus {
+  animation: pulse 0.5s ease-in-out;
+}

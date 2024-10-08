@@ -1,0 +1,121 @@
+.lutece-identitypicker-timeline {
+    position: relative;
+    border-left: 1px solid var(--ip-border);
+    margin-left: 6px;
+}
+
+.lutece-identitypicker-timeline-item {
+    position: relative;
+}
+
+.lutece-identitypicker-timeline-point {
+    background-color: var(--ip-border);
+    border-radius: 50%;
+    height: 12px;
+    left: -7px;
+    position: absolute;
+    top: 21px;
+    width: 12px;
+}
+
+.lutece-identitypicker-timeline-content {
+    padding: 15px;
+}
+
+.lutece-identitypicker-timeline-content .date {
+    color: var(--ip-text-light);
+    font-size: 12px;
+    letter-spacing: .1rem;
+    margin: 0;
+}
+
+.lutece-identitypicker-identity-change-header {
+    margin-bottom: 10px;
+}
+
+.lutece-identitypicker-identity-change-header .change-type {
+    font-weight: bold;
+    color: var(--ip-text);
+    margin-bottom: 5px;
+}
+
+.lutece-identitypicker-identity-change-header .change-info {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.lutece-identitypicker-change-status {
+    font-style: italic;
+    color: #28a745;
+    margin-bottom: 5px;
+}
+
+.lutece-identitypicker-change-message {
+    display: block;
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.lutece-identitypicker-attribute-changes-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.lutece-identitypicker-attribute-changes-table th,
+.lutece-identitypicker-attribute-changes-table td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+}
+
+.lutece-identitypicker-attribute-changes-table th {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+
+.lutece-identitypicker-attribute-changes-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+
+.lutece-identitypicker-date-and-types {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    justify-content: space-between;
+}
+.lutece-identitypicker-event-types {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.lutece-identitypicker-event-type {
+    margin-right: 5px;
+}
+
+.lutece-identitypicker-event-type.identity { color: #007bff; }
+.lutece-identitypicker-event-type.attribute { color: #28a745; }
+.lutece-identitypicker-event-type.task { color: #ffc107; }
+
+.lutece-identitypicker-search-bar {
+    position: sticky;
+    top: 0px;
+    z-index: 2; 
+    background-color: var(--ip-table-separator-bg);
+    padding-top:20px;
+    padding-bottom:20px;
+}
+
+
+.lutece-identitypicker-search-input {
+    border-radius: 40px !important;
+  }
+  
+
+
+.lutece-identitypicker-side-container  .lutece-identitypicker-content-area {
+    padding-top:10px;
+    padding-right: 25px;
+}

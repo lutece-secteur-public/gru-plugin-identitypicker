@@ -1,0 +1,104 @@
+.lutece-identitypicker-results-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--ip-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.lutece-identitypicker-result-item {
+  margin-bottom: 0;
+  padding: 20px;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid var(--ip-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lutece-identitypicker-result-item:last-child {
+  border-bottom: none;
+}
+
+.lutece-identitypicker-result-item:hover {
+  background-color: var(--ip-result-item-hover-bg);
+  cursor: pointer;
+  background-color: var(--ip-table-td-hover-bg);
+}
+
+.lutece-identitypicker-result-left {
+  flex-grow: 1;
+  margin-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.lutece-identitypicker-result-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.lutece-identitypicker-result-header,
+.lutece-identitypicker-result-details {
+  width: 100%;
+  text-align: left;
+}
+
+.lutece-identitypicker-result-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lutece-identitypicker-result-header h3 {
+  color: var(--ip-text);
+  margin: 0;
+  font-size: 14px !important;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.lutece-identitypicker-preferred-name {
+  font-style: italic;
+  margin: 4px 0 0;
+  font-weight: 400;
+}
+
+.lutece-identitypicker-result-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lutece-identitypicker-result-details p {
+  margin: 0;
+}
+
+.lutece-identitypicker-result-details i {
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+}
+
+.lutece-identitypicker-high {
+  color: #28a745;
+}
+
+.lutece-identitypicker-medium {
+  color: #ff6507;
+}
+
+.lutece-identitypicker-low {
+  color: #dc3545;
+}
+
+.lutece-identitypicker-highlight {
+  background-color: rgba(255, 0, 0, 0.2);
+  border-radius: 2px;
+  padding: 0 2px;
+}
