@@ -31,9 +31,9 @@ export default class IdentitySearch {
         </div>
       </form>
       <form id="ip-name-form-${this.uniqueId}">
-        <input type="text" placeholder="${this.identityPicker.rules.language.firstNamePlaceholder}" value="sebastien" name="firstName" required>
-        <input type="text" placeholder="${this.identityPicker.rules.language.lastNamePlaceholder}" value="leridon" name="lastName" required>
-        <input type="date" placeholder="${this.identityPicker.rules.language.birthdatePlaceholder}" value="1971-12-27" name="birthdate" required>
+        <input type="text" placeholder="${this.identityPicker.rules.language.firstNamePlaceholder}" name="firstName" required>
+        <input type="text" placeholder="${this.identityPicker.rules.language.lastNamePlaceholder}" name="lastName" required>
+        <input type="date" placeholder="${this.identityPicker.rules.language.birthdatePlaceholder}" name="birthdate" required>
         <div class="ip-container-buttons">
           <button class="ip-button-light ip-button-close" type="button">${this.identityPicker.rules.language.closeButton}</button>
           <button type="submit">${searchIcon} ${this.identityPicker.rules.language.searchButton}</button>
