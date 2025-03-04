@@ -96,7 +96,7 @@ export default class IdentitySearch {
   buildSearchUrl(formData, searchType) {
     const baseUrl = this.identityPicker.config.endpoints.search + '?';
     if (searchType === 'email') {
-      return `${baseUrl}email=${encodeURIComponent(formData.get('email'))}`;
+      return `${baseUrl}common_email=${encodeURIComponent(formData.get('email'))}`;
     } else {
       const birthdate = formatDate(formData.get('birthdate'));
       return `${baseUrl}common_lastname=${formData.get('lastName')}&first_name=${formData.get('firstName')}&birthdate=${birthdate}`;
