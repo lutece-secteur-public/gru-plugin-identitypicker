@@ -409,7 +409,7 @@ export default class IdentityPicker {
     if (!hasSearchPermission && !hasViewPermission) {
       this.showMessage('noPermissions', 'error');
     } else if (hasViewPermission && modalCuid) {
-      this.identityView.loadIdentityDetails(modalCuid);
+      this.showDetailsView(modalCuid, 'search');
     } else if (hasViewPermission && !modalCuid && !hasSearchPermission) {
       this.showMessage('noCuid', 'error');
     } else {
