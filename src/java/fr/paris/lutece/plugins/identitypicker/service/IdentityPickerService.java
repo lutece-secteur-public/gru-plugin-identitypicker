@@ -280,7 +280,7 @@ public class IdentityPickerService {
      * @return An AttributeDto object, or null if the value is blank
      */
     private AttributeDto buildAttribute(String key, String value, String certification) {
-        if (StringUtils.isBlank(value)) {
+        if (StringUtils.isBlank(value) && StringUtils.isBlank(certification)) {
             return null;
         }
         AttributeDto attr = new AttributeDto();
