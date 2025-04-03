@@ -204,7 +204,7 @@ export default class IdentityForm {
             }
     
             const successMessage = mode === 'create' ? 'successCreate' : 'successModify';
-            await this.identityPicker.identityView.showDetailsView(responseData.customer_id, 'results', 'success', successMessage);
+            await this.identityPicker.showDetailsView(responseData.customer_id, 'results', 'success', successMessage);
     
         } catch (error) {
             console.error(this.identityPicker.rules.language.fetchError, error);
