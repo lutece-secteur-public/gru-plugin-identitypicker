@@ -1,260 +1,362 @@
 import { formatDate } from '../utils/utils';
+
 export default class IdentityCompare {
-  constructor(identityPicker) {
-    this.identityPicker = identityPicker;
-    this.identities = [];
-  }
-  initCompareView(identities) {
-    this.identities = identities;
-    this.renderCompareTable();
-  }
-  renderCompareTable() {
-    const width = window.innerWidth;
-    const idealWidth = 200 + (300 * this.identities.length);
-    if (idealWidth > width) {
-      this.identityPicker.modalContent.style.maxWidth = `${width - 50}px`;
-    } else {
-      this.identityPicker.modalContent.style.maxWidth = `${idealWidth}px`;
+    constructor(identityPicker) {
+        this.identityPicker = identityPicker;
+        this.identities = [];
     }
-    const allAttributes = this.getAllAttributes();
-    const groupedAttributes = this.groupAttributes(allAttributes);
-    const tableHeaders = this.identities.map(identity => `
-      <th>
-        <a href="#" class="ip-select-link" data-customer-id="${identity.customer_id}">
-          ${this.getAttrValue(identity, "first_name")} ${this.getAttrValue(identity, "family_name")}
-        </a>
-      </th>
-    `).join('');
-    let tableRows = '';
-    const identityProperties = [
-      { key: 'customer_id', label: this.identityPicker.rules.language.cuid },
-      { key: 'creation_date', label: this.identityPicker.rules.language.creationDate },
-      { key: 'last_update_date', label: this.identityPicker.rules.language.lastUpdateDate },
-      { key: 'scoring', label: this.identityPicker.rules.language.qualityScore },
-      { key: 'quality', label: this.identityPicker.rules.language.qualityLabel },
-      { key: 'coverage', label: this.identityPicker.rules.language.coverageLabel },
-      { key: 'mon_paris_active', label: this.identityPicker.rules.language.monParisAccount },
-    ];
-    identityProperties.forEach(prop => {
-      tableRows += this.createIdentityPropertyRow(prop.key, prop.label);
-    });
-    for (const [groupKey, attrs] of Object.entries(groupedAttributes)) {
-      if (attrs.length > 0) {
-        const groupLabel = groupKey === 'other' ?
-          this.identityPicker.rules.language.otherGroup :
-          this.identityPicker.rules.language[`${groupKey}Group`];
-        tableRows += `
-          <tr class="ip-group-separator">
-            <td class="ip-table-separator ip-group-label">${groupLabel}</td>
-            ${Array(this.identities.length).fill(`<td class="ip-table-separator"></td>`).join('')}
-          </tr>
-        `;
-        attrs.forEach(attr => {
-          tableRows += this.createAttributeRow(attr.key);
+
+    initCompareView(identities) {
+        this.identities = identities.sort((a, b) => {
+            const qualityDiff = b.quality.scoring - a.quality.scoring;
+            if (qualityDiff !== 0) return qualityDiff;
+            
+            return new Date(b.last_update_date) - new Date(a.last_update_date);
         });
-      }
+        
+        this.renderCompareTable();
     }
-    const tableHtml = `
-      <div class="ip-scrollable-content ip-compare-table-container">
-        <table class="ip-compare-table">
-          <thead>
-            <tr>
-              <th></th>
-              ${tableHeaders}
-            </tr>
-          </thead>
-          <tbody>
-            ${tableRows}
-          </tbody>
-        </table>
-      </div>
-    `;
-    this.identityPicker.compareContainer.innerHTML = tableHtml;
-    this.identityPicker.compareContainer.scrollTop = 0;
-    this.identityPicker.adjustModalHeight();
-    const selectLinks = this.identityPicker.compareContainer.querySelectorAll('.ip-select-link');
-    selectLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const customerId = link.dataset.customerId;
-        this.identityPicker.showDetailsView(customerId, "compare");
-      });
-    });
-  }
-  createIdentityPropertyRow(propertyKey, propertyLabel) {
-    const values = this.identities.map(identity => {
-      let value = '';
-      let className = '';
-      switch (propertyKey) {
-        case 'customer_id':
-          value = identity.customer_id;
-          break;
-        case 'last_update_date':
-          value = formatDate(identity.last_update_date);
-          break;
-        case 'creation_date':
-          value = formatDate(identity.creation_date);
-          break;
-        case 'scoring':
-          const scoringValue = (identity.quality.scoring * 100).toFixed(2);
-          value = `${scoringValue}%`;
-          className = this.getPercentageClass(scoringValue);
-          break;
-        case 'quality':
-          const qualityValue = (identity.quality.quality * 100).toFixed(2);
-          value = `${qualityValue}%`;
-          className = this.getPercentageClass(qualityValue);
-          break;
-        case 'coverage':
-          const coverageValue = (identity.quality.coverage * 100).toFixed(2);
-          value = `${coverageValue}%`;
-          className = this.getPercentageClass(coverageValue);
-          break;
-        case 'mon_paris_active':
-          const isActive = identity.mon_paris_active;
-          value = isActive ? this.identityPicker.rules.language.active : this.identityPicker.rules.language.inactive;
-          className = isActive ? 'ip-active' : 'ip-inactive';
-          break;
-        default:
-          value = identity[propertyKey] || '';
-      }
-      return { value, className };
-    });
-    const cells = values.map(valObj => `<td class="${valObj.className}">${valObj.value}</td>`).join('');
-    return `<tr>
-      <td>${propertyLabel}</td>
-      ${cells}
-    </tr>`;
-  }
-  getPercentageClass(percentage) {
-    const percentValue = parseFloat(percentage);
-    if (percentValue >= 80) return 'ip-percentage-high';
-    if (percentValue >= 50) return 'ip-percentage-medium';
-    return 'ip-percentage-low';
-  }
-  getAllAttributes() {
-    const attributesMap = new Map();
-    this.identities.forEach(identity => {
-      identity.attributes.forEach(attr => {
-        if (!attributesMap.has(attr.key)) {
-          const attributeInfo = this.getAttributeInfo(attr.key);
-          attributesMap.set(attr.key, {
-            key: attr.key,
-            label: attributeInfo.label,
-            description: attributeInfo.description,
-          });
-        }
-      });
-    });
-    return Array.from(attributesMap.values());
-  }
-  groupAttributes(attributes) {
-    const groupedAttributes = {};
-    Object.keys(this.identityPicker.config.attributeGroups).forEach(groupKey => {
-      groupedAttributes[groupKey] = [];
-    });
-    groupedAttributes['other'] = [];
-    attributes.forEach(attr => {
-      let placed = false;
-      for (const [groupKey, group] of Object.entries(this.identityPicker.config.attributeGroups)) {
-        if (group.attributes.includes(attr.key)) {
-          groupedAttributes[groupKey].push(attr);
-          placed = true;
-          break;
-        }
-      }
-      if (!placed) {
-        groupedAttributes['other'].push(attr);
-      }
-    });
-    Object.keys(groupedAttributes).forEach(groupKey => {
-      if (groupKey !== 'other') {
-        groupedAttributes[groupKey].sort((a, b) => {
-          return this.identityPicker.config.attributeGroups[groupKey].attributes.indexOf(a.key) -
-            this.identityPicker.config.attributeGroups[groupKey].attributes.indexOf(b.key);
-        });
-      }
-    });
-    return groupedAttributes;
-  }
-  createAttributeRow(attrKey) {
-    const attributeInfo = this.getAttributeInfo(attrKey);
-    const values = this.identities.map(identity => {
-      return this.getAttrValue(identity, attrKey);
-    });
-    const normalizedValues = values.map(value => this.normalizeString(value));
-    const commonParts = this.findCommonParts(normalizedValues);
-    const cells = values.map((value, index) => {
-      const highlightedValue = this.highlightDifferences(value, commonParts);
-      return `<td>${highlightedValue}</td>`;
-    }).join('');
-    return `<tr>
-      <td>${attributeInfo.label}</td>
-      ${cells}
-    </tr>`;
-  }
-  getAttrValue(identity, key) {
-    const attr = identity.attributes.find(a => a.key === key);
-    return attr ? this.getDisplayValue(key, attr.value) : '';
-  }
-  normalizeString(str) {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
-  }
-  findCommonParts(values) {
-    const nonEmptyValues = values.filter(value => value.trim() !== '');
-    if (nonEmptyValues.length === 0) return [];
-    const wordCount = {};
-    nonEmptyValues.forEach(value => {
-      const words = value.split(/\s+/);
-      const uniqueWords = new Set(words);
-      uniqueWords.forEach(word => {
-        if (word.trim() === '') return;
-        if (wordCount[word]) {
-          wordCount[word]++;
+
+    renderCompareTable() {
+        const width = window.innerWidth;
+        const idealWidth = 200 + (300 * this.identities.length);
+        if (idealWidth > width) {
+            this.identityPicker.modalContent.style.maxWidth = `${width - 50}px`;
         } else {
-          wordCount[word] = 1;
+            this.identityPicker.modalContent.style.maxWidth = `${idealWidth}px`;
         }
-      });
-    });
-    const majorityThreshold = Math.floor(nonEmptyValues.length / 2) + 1;
-    const commonWords = [];
-    for (const word in wordCount) {
-      if (wordCount[word] >= majorityThreshold) {
-        commonWords.push(word);
-      }
+
+        const tableHeaders = this.identities.map(identity => `
+            <th>
+                <a href="#" class="ip-select-link" data-customer-id="${identity.customer_id}">
+                    ${identity.customer_id}
+                </a>
+            </th>
+        `).join('');
+
+        let tableRows = '';
+
+        const referenceIdentity = this.identities[0];
+
+        const certificationsRow = this.createCertificationsRow(referenceIdentity);
+        
+        const monParisRow = this.createMonParisRow();
+
+        let identityInfoRows = this.createIdentityInfoRows();
+        let contactInfoRows = this.createContactInfoRows();
+        let additionalInfoRows = this.createAdditionalInfoRows();
+
+        tableRows = 
+            `<tr class="ip-group-separator">
+                <td class="ip-table-separator ip-group-label">Informations d'identité</td>
+                ${Array(this.identities.length).fill(`<td class="ip-table-separator"></td>`).join('')}
+            </tr>` +
+            certificationsRow +
+            monParisRow +
+            identityInfoRows +
+            `<tr class="ip-group-separator">
+                <td class="ip-table-separator ip-group-label">Informations de contact</td>
+                ${Array(this.identities.length).fill(`<td class="ip-table-separator"></td>`).join('')}
+            </tr>` +
+            contactInfoRows +
+            `<tr class="ip-group-separator">
+                <td class="ip-table-separator ip-group-label">Informations complémentaires</td>
+                ${Array(this.identities.length).fill(`<td class="ip-table-separator"></td>`).join('')}
+            </tr>` +
+            additionalInfoRows;
+
+        const tableHtml = `
+            <div class="ip-scrollable-content ip-compare-table-container">
+                <table class="ip-compare-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            ${tableHeaders}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        this.identityPicker.compareContainer.innerHTML = tableHtml;
+        this.identityPicker.compareContainer.scrollTop = 0;
+        this.identityPicker.adjustModalHeight();
+
+        const selectLinks = this.identityPicker.compareContainer.querySelectorAll('.ip-select-link');
+        selectLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const customerId = link.dataset.customerId;
+                this.identityPicker.showDetailsView(customerId, "compare");
+            });
+        });
     }
-    return commonWords;
-  }
-  highlightDifferences(originalValue, commonParts) {
-    const words = originalValue.split(/\s+/);
-    const highlightedWords = words.map(word => {
-      const normalizedWord = this.normalizeString(word);
-      if (commonParts.includes(normalizedWord)) {
-        return word;
-      } else if (word.trim() === '') {
-        return word;
-      } else {
-        return `<span class="ip-difference">${word}</span>`;
-      }
-    });
-    return highlightedWords.join(' ');
-  }
-  getAttributeInfo(key) {
-    const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
-    return {
-      label: attributeKey ? attributeKey.name : key,
-      description: attributeKey ? attributeKey.description : '',
-    };
-  }
-  getDisplayValue(key, value) {
-    const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
-    if (attributeKey && attributeKey.values) {
-      const matchingValue = attributeKey.values.find(v => v.value === value);
-      return matchingValue ? matchingValue.label : value;
+
+    createCertificationsRow(referenceIdentity) {
+        const pivotAttributes = this.identityPicker.rules.referential.attributeKeyList.attributeKeys
+            .filter(attr => attr.pivot)
+            .map(attr => attr.keyName);
+        
+        const certificationTexts = this.identities.map(identity => {
+            let allCertified = true;
+            let minCertLevel = 600;
+            
+            for (const pivotAttr of pivotAttributes) {
+                const attr = identity.attributes.find(a => a.key === pivotAttr);
+                if (!attr) {
+                    allCertified = false;
+                    break;
+                }
+                
+                const certCode = attr.certProcess;
+                const certDef = this.identityPicker.rules.contract.attributeDefinitions
+                    .find(def => def.keyName === pivotAttr)?.attributeCertifications
+                    .find(cert => cert.code === certCode);
+                
+                if (!certDef || parseInt(certDef.level) < 400) {
+                    allCertified = false;
+                    break;
+                }
+                
+                minCertLevel = Math.min(minCertLevel, parseInt(certDef.level));
+            }
+            
+            if (!allCertified) return "";
+            
+            if (minCertLevel >= 600) return "FranceConnect";
+            if (minCertLevel >= 500) return "PJ officielle guichet";
+            if (minCertLevel >= 400) return "PJ officielle scannée";
+            
+            return "";
+        });
+        
+        if (certificationTexts.every(text => text === "")) {
+            return "";
+        }
+        
+        const cells = certificationTexts.map(text => `<td>${text}</td>`).join('');
+        return `<tr>
+            <td>${this.identityPicker.rules.language.certificationLevel || "Niveau de certification"}</td>
+            ${cells}
+        </tr>`;
     }
-    return value;
-  }
+
+    createMonParisRow() {
+        const cells = this.identities.map(identity => {
+            const isActive = identity.mon_paris_active;
+            const text = isActive 
+                ? this.identityPicker.rules.language.active || "Oui" 
+                : this.identityPicker.rules.language.inactive || "Non";
+            const className = isActive ? 'ip-active' : 'ip-inactive';
+            return `<td class="${className}">${text}</td>`;
+        }).join('');
+
+        return `<tr>
+            <td>${this.identityPicker.rules.language.monParisAccount || "Identité rattachée à un compte MonParis"}</td>
+            ${cells}
+        </tr>`;
+    }
+
+    createIdentityInfoRows() {
+        const identityAttributes = [
+            { key: 'gender', label: this.identityPicker.rules.language.gender || "Sexe", formatter: this.formatGender.bind(this) },
+            { key: 'family_name', label: this.identityPicker.rules.language.familyName || "Nom de naissance", formatter: value => value.toUpperCase() },
+            { key: 'preferred_username', label: this.identityPicker.rules.language.preferredUsername || "Nom d'usage", formatter: value => `<i>${value.toUpperCase()}</i>` },
+            { key: 'first_name', label: this.identityPicker.rules.language.firstName || "Prénoms", formatter: this.formatFirstName.bind(this) },
+            { key: 'birthdate', label: this.identityPicker.rules.language.birthdate || "Date de naissance" },
+            { key: 'birthcountry', label: this.identityPicker.rules.language.birthcountry || "Pays de naissance" },
+            { key: 'birthcountry_code', label: this.identityPicker.rules.language.birthcountryCode || "Code INSEE pays" },
+            { key: 'birthplace', label: this.identityPicker.rules.language.birthplace || "Commune de naissance" },
+            { key: 'birthplace_code', label: this.identityPicker.rules.language.birthplaceCode || "Code INSEE commune" }
+        ];
+
+        return this.createAttributeRows(identityAttributes);
+    }
+
+    createContactInfoRows() {
+        const contactAttributes = [
+            { key: 'email', label: this.identityPicker.rules.language.email || "Email de contact" },
+            { key: 'login', label: this.identityPicker.rules.language.login || "Login" },
+            { key: 'mobile_phone', label: this.identityPicker.rules.language.mobilePhone || "Téléphone portable" },
+            { key: 'fixed_phone', label: this.identityPicker.rules.language.fixedPhone || "Téléphone fixe" },
+            { key: 'address', label: this.identityPicker.rules.language.address || "Adresse" },
+            { key: 'address_detail', label: this.identityPicker.rules.language.addressDetail || "Complément d'adresse" },
+            { key: 'address_postal_code', label: this.identityPicker.rules.language.postalCode || "Code postal" },
+            { key: 'address_city', label: this.identityPicker.rules.language.city || "Ville" }
+        ];
+
+        return this.createAttributeRows(contactAttributes);
+    }
+
+    createAdditionalInfoRows() {
+        let rows = '';
+        
+        rows += this.createRow(
+            this.identityPicker.rules.language.creationDate || "Date de Création",
+            this.identities.map(identity => formatDate(identity.creation_date))
+        );
+        
+        rows += this.createRow(
+            this.identityPicker.rules.language.lastUpdateDate || "Date de Modification",
+            this.identities.map(identity => formatDate(identity.last_update_date))
+        );
+        
+        rows += this.createRow(
+            this.identityPicker.rules.language.qualityScore || "Score",
+            this.identities.map(identity => {
+                const scoringValue = (identity.quality.scoring * 100).toFixed(2);
+                const className = this.getPercentageClass(scoringValue);
+                return { value: `${scoringValue}%`, className };
+            })
+        );
+        
+        rows += this.createRow(
+            this.identityPicker.rules.language.coverageLabel || "Couverture",
+            this.identities.map(identity => {
+                const coverageValue = (identity.quality.coverage * 100).toFixed(2);
+                const className = this.getPercentageClass(coverageValue);
+                const displayText = coverageValue >= 100 
+                    ? (this.identityPicker.rules.language.completeInformation || "Informations Complètes")
+                    : (this.identityPicker.rules.language.incompleteInformation || "Informations à compléter");
+                return { value: displayText, className };
+            })
+        );
+        
+        rows += this.createRow(
+            this.identityPicker.rules.language.qualityLabel || "Qualité",
+            this.identities.map(identity => {
+                const qualityValue = (identity.quality.quality * 100).toFixed(2);
+                const className = this.getPercentageClass(qualityValue);
+                return { value: `${qualityValue}%`, className };
+            })
+        );
+        
+        return rows;
+    }
+
+    createAttributeRows(attributeDefinitions) {
+        let rows = '';
+        const referenceIdentity = this.identities[0];
+        
+        attributeDefinitions.forEach(attrDef => {
+            const referenceValue = this.getAttrValue(referenceIdentity, attrDef.key);
+            
+            const cells = this.identities.map((identity, index) => {
+                let value = this.getAttrValue(identity, attrDef.key);
+                
+                if (attrDef.formatter && value) {
+                    value = attrDef.formatter(value);
+                }
+                
+                if (index > 0 && this.normalizeString(value) !== this.normalizeString(referenceValue)) {
+                    return `<td class="ip-difference">${value || ''}</td>`;
+                }
+                
+                return `<td>${value || ''}</td>`;
+            }).join('');
+            
+            rows += `<tr>
+                <td>${attrDef.label}</td>
+                ${cells}
+            </tr>`;
+        });
+        
+        return rows;
+    }
+
+    createRow(label, values) {
+        const cells = Array.isArray(values) 
+            ? values.map(val => {
+                if (typeof val === 'object') {
+                    return `<td class="${val.className || ''}">${val.value || ''}</td>`;
+                }
+                return `<td>${val || ''}</td>`;
+            }).join('')
+            : Array(this.identities.length).fill(`<td>${values || ''}</td>`).join('');
+
+        return `<tr>
+            <td>${label}</td>
+            ${cells}
+        </tr>`;
+    }
+
+    formatGender(value) {
+        if (value === '1') return 'F';
+        if (value === '2') return 'H';
+        return 'ND';
+    }
+
+    formatFirstName(firstName) {
+        if (!firstName) return '';
+        return firstName.split(' ')
+            .map(name => name.charAt(0).toUpperCase() + name.slice(1).toLowerCase())
+            .join(' ');
+    }
+
+    getAttrValue(identity, key) {
+        const attr = identity.attributes.find(a => a.key === key);
+        return attr ? this.getDisplayValue(key, attr.value) : '';
+    }
+
+    getDisplayValue(key, value) {
+        if (!value) return '';
+        
+        const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
+        if (attributeKey && attributeKey.values) {
+            const matchingValue = attributeKey.values.find(v => v.value === value);
+            return matchingValue ? matchingValue.label : value;
+        }
+        return value;
+    }
+
+    normalizeString(str) {
+        if (!str) return '';
+        
+        if (str.includes('<')) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = str;
+            str = tempDiv.textContent || tempDiv.innerText || '';
+        }
+        
+        return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+    }
+
+    getPercentageClass(percentage) {
+        const percentValue = parseFloat(percentage);
+        if (percentValue >= 80) return 'ip-percentage-high';
+        if (percentValue >= 50) return 'ip-percentage-medium';
+        return 'ip-percentage-low';
+    }
+
+    getAllAttributes() {
+        const attributesMap = new Map();
+        this.identities.forEach(identity => {
+            identity.attributes.forEach(attr => {
+                if (!attributesMap.has(attr.key)) {
+                    const attributeInfo = this.getAttributeInfo(attr.key);
+                    attributesMap.set(attr.key, {
+                        key: attr.key,
+                        label: attributeInfo.label,
+                        description: attributeInfo.description,
+                    });
+                }
+            });
+        });
+        return Array.from(attributesMap.values());
+    }
+
+    getAttributeInfo(key) {
+        const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
+        return {
+            label: attributeKey ? attributeKey.name : key,
+            description: attributeKey ? attributeKey.description : '',
+        };
+    }
 }
