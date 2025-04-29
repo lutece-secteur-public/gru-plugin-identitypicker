@@ -143,10 +143,6 @@ export default class IdentityPicker {
     await this.identitySearch.initSearchView();
 
     this.modal.querySelector('.ip-close').addEventListener('click', () => this.closeModal());
-    this.modal.addEventListener('click', (event) => {
-      if (event.target === this.modal) this.closeModal();
-    });
-
     this.backButton.addEventListener('click', () => this.showSearchView());
   }
 
