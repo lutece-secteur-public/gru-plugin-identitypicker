@@ -191,3 +191,81 @@
   border-radius: 8px;
   padding: 0 5px;
 }
+
+.ip-search-criteria {
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: var(--ip-bg);
+    border: 1px solid var(--ip-border);
+    border-radius: 8px;
+}
+
+.ip-search-criteria p {
+    margin: 0 0 8px 0;
+    font-weight: 500;
+    color: var(--ip-text);
+}
+
+.ip-criteria-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ip-tag-criteria {
+    background-color: var(--ip-bg);
+    border: 1px solid var(--ip-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: var(--ip-text);
+}
+
+.ip-tag-criteria strong {
+    margin-right: 4px;
+}
+
+.ip-info-tag.ip-tag-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.ip-info-tag.ip-tag-error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+.ip-result-header h3 {
+    color: var(--ip-text);
+    margin: 0;
+    font-size: 14px !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: none;
+}
+
+.ip-preferred-name {
+    font-style: italic;
+    margin: 4px 0 0;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.ip-approximate {
+    background-color: #fff3cd;
+    color: #856404;
+    border-radius: 2px;
+    padding: 0 2px;
+    font-weight: 700;
+}
+
+.ip-result-details p {
+    margin: 8px 0 0;
+    line-height: 1.4;
+}
+
+.ip-result-details p:first-child {
+    font-weight: 500;
+}

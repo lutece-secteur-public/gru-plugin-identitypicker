@@ -6,7 +6,7 @@
 }
 
 .ip-search-option label {
-  display: flex;
+  display: flex; 
   align-items: center;
   width: 250px;
   padding: 10px 15px;
@@ -195,4 +195,12 @@
 
 .ip-error-input {
   border-color: #d32f2f !important;
+}
+
+.ip-input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 14px;
+
 }
