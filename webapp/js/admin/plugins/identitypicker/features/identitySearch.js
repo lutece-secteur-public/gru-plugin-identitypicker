@@ -199,7 +199,6 @@ export default class IdentitySearch {
 
     createResultItem(result) {
         const searchData = this.getSearchData();
-        
         const firstName = this.getAttributeValue(result, 'first_name');
         const lastName = this.getAttributeValue(result, 'family_name');
         const preferredUsername = this.getAttributeValue(result, 'preferred_username');
@@ -207,42 +206,39 @@ export default class IdentitySearch {
         const gender = this.getAttributeValue(result, 'gender');
         const birthcountry = this.getAttributeValue(result, 'birthcountry');
         const birthplace = this.getAttributeValue(result, 'birthplace');
-        
+
         let formattedGender = 'ND';
         if (gender === '1') {
             formattedGender = 'M';
         } else if (gender === '2') {
             formattedGender = 'F';
         }
+
         const formattedLastName = lastName.toUpperCase();
         const formattedFirstName = this.toTitleCase(firstName);
         const formattedPreferredUsername = preferredUsername ? preferredUsername.toUpperCase() : '';
+
+        const searchOption = this.identityPicker.searchContainer.querySelector('input[name="searchType"]:checked').value;
+        const isEmailSearch = searchOption === 'email';
         
-        const isLastNameApproximate = this.isApproximateMatch(searchData.lastName, lastName);
-        const isFirstNameApproximate = this.isApproximateMatch(searchData.firstName, firstName);
-        
-        const line1 = `${formattedGender} ${isLastNameApproximate ? 
-            `<span class="ip-approximate">${formattedLastName}</span>` : 
-            formattedLastName} ${isFirstNameApproximate ? 
-            `<span class="ip-approximate">${formattedFirstName}</span>` : 
-            formattedFirstName}`;
-        
-        const line2 = formattedPreferredUsername ? 
-            `<div class="ip-preferred-name">${formattedPreferredUsername}</div>` : '';
-        
+        const isLastNameApproximate = !isEmailSearch && this.isApproximateMatch(searchData.lastName, lastName);
+        const isFirstNameApproximate = !isEmailSearch && this.isApproximateMatch(searchData.firstName, firstName);
+
+        const line1 = `${formattedGender} ${isLastNameApproximate ? `<span class="ip-approximate">${formattedLastName}</span>` : formattedLastName} ${isFirstNameApproximate ? `<span class="ip-approximate">${formattedFirstName}</span>` : formattedFirstName}`;
+        const line2 = formattedPreferredUsername ? `<div class="ip-preferred-name">${formattedPreferredUsername}</div>` : '';
+
         const birthInfo = [
             birthdate,
             birthcountry,
             birthplace
         ].filter(Boolean).join(' | ');
-        
-        
+
         const monParisBadge = `
             <span class="ip-info-tag ${result.mon_paris_active ? 'ip-tag-success' : 'ip-tag-error'}">
                 <strong>Mon Paris</strong> ${result.mon_paris_active ? 'Actif' : 'Inactif'}
             </span>
         `;
-        
+
         return `
             <li class="ip-result-item" data-customer-id="${result.customer_id}">
                 <div class="ip-result-left">
