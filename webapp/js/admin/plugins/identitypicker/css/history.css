@@ -1,183 +1,226 @@
 .ip-timeline {
-    position: relative;
-    border-left: 1px solid var(--ip-border);
-    margin-left: 6px;
+  position: relative;
+  border-left: 1px solid var(--ip-border);
+  margin-left: 6px;
 }
 
 .ip-timeline-item {
-    position: relative;
+  position: relative;
 }
 
 .ip-timeline-point {
-    background-color: var(--ip-border);
-    border-radius: 50%;
-    height: 12px;
-    left: -7px;
-    position: absolute;
-    top: 21px;
-    width: 12px;
+  background-color: var(--ip-border);
+  border-radius: 50%;
+  height: 12px;
+  left: -7px;
+  position: absolute;
+  top: 21px;
+  width: 12px;
 }
 
 .ip-timeline-content {
-    padding: 15px;
+  padding: 15px;
 }
 
 .ip-timeline-content .date {
-    color: var(--ip-text-light);
-    font-size: 12px;
-    letter-spacing: .1rem;
-    margin: 0;
+  color: var(--ip-text-light);
+  font-size: 12px;
+  letter-spacing: .1rem;
+  margin: 0;
 }
 
 .ip-timeline-content .code {
-    color: var(--ip-text-extra-light);
-    font-size: 10px;
-    margin: 0;
+  color: var(--ip-text-extra-light);
+  font-size: 10px;
+  margin: 0;
 }
 
 button.ip-copy-button {
-    margin-top: 5px;
-    padding: 5px;
-    background: #fff;
-    color: var(--ip-text);
-    font-size: 10px;
+  margin-top: 5px;
+  padding: 5px;
+  background: #fff;
+  color: var(--ip-text);
+  font-size: 10px;
 }
 
 button.ip-copy-button:hover {
-    background: var(--ip-table-td-hover-bg);
+  background: var(--ip-table-td-hover-bg);
 }
 
 .ip-identity-change-header {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .ip-timeline .change-type {
-    font-weight: bold;
-    color: var(--ip-text);
-    margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--ip-text);
+  margin-bottom: 5px;
 }
 
 .ip-identity-change-header .change-info {
-    font-size: 0.9em;
-    color: #6c757d;
+  font-size: 0.9em;
+  color: #6c757d;
 }
 
 .ip-change-status {
-    font-style: italic;
-    color: #28a745;
-    margin-bottom: 5px;
+  font-style: italic;
+  color: #28a745;
+  margin-bottom: 5px;
 }
 
 .ip-change-message {
-    display: block;
-    font-size: 0.9em;
-    color: #6c757d;
-    margin-bottom: 10px;
+  display: block;
+  font-size: 0.9em;
+  color: #6c757d;
+  margin-bottom: 10px;
 }
 
 .ip-attribute-changes-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
 .ip-attribute-changes-table th,
 .ip-attribute-changes-table td {
-    border: 1px solid #dee2e6;
-    padding: 8px;
-    text-align: left;
+  border: 1px solid #dee2e6;
+  padding: 8px;
+  text-align: left;
 }
 
 .ip-attribute-changes-table th {
-    background-color: #e9ecef;
-    font-weight: bold;
+  background-color: #e9ecef;
+  font-weight: bold;
 }
 
 .ip-attribute-changes-table tr:nth-child(even) {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
 
 .ip-date-and-types {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: space-between;
 }
 
 .ip-event-types {
-    font-size: 0.9em;
-    color: #666;
+  font-size: 0.9em;
+  color: #666;
 }
 
 .ip-event-type {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 .ip-event-type.identity {
-    color: #007bff;
+  color: #007bff;
 }
 
 .ip-event-type.attribute {
-    color: #28a745;
+  color: #28a745;
 }
 
 .ip-event-type.task {
-    color: #ffc107;
+  color: #ffc107;
 }
 
 .ip-search-bar {
-    position: sticky;
-    top: 0px;
-    z-index: 2;
-    background-color: var(--ip-table-separator-bg);
-    padding-top: 20px;
-    padding-bottom: 20px;
+  position: sticky;
+  top: 0px;
+  z-index: 2;
+  background-color: var(--ip-table-separator-bg);
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .ip-search-input {
-    border-radius: 40px !important;
+  border-radius: 40px !important;
 }
 
 .ip-side-container .ip-content-area {
-    padding-top: 10px;
-    padding-right: 25px;
-    margin-bottom: 60px;
+  padding-top: 10px;
+  padding-right: 25px;
+  margin-bottom: 60px;
 }
 
 .ip-view-task-history {
-    margin-top: 10px;
-    padding: 5px 10px;
-    background-color: var(--ip-primary);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: var(--ip-primary);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .ip-view-task-history:hover {
-    background-color: var(--ip-primary-dark);
+  background-color: var(--ip-primary-dark);
 }
 
 .ip-full-task-history {
-    padding: 20px;
+  padding: 20px;
 }
 
 .ip-task-history-item {
-    border-bottom: 1px solid var(--ip-border);
-    padding: 10px 0;
+  border-bottom: 1px solid var(--ip-border);
+  padding: 10px 0;
 }
 
 .ip-task-history-item span {
-    display: block;
-    margin-bottom: 5px;
+  display: block;
+  margin-bottom: 5px;
 }
 
 .ip-task-history-date {
-    font-weight: bold;
+  font-weight: bold;
 }
 
-.ip-task-history-change,
-.ip-task-history-status,
-.ip-task-history-author {
-    color: var(--ip-text-light);
+.ip-task-history-change, .ip-task-history-status, .ip-task-history-author {
+  color: var(--ip-text-light);
+}
+
+/* Styles pour la liste des changements d'attributs */
+.ip-attribute-changes-list {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid var(--ip-border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.ip-attribute-changes-list
+.ip-attribute-change-item {
+  padding: 8px;
+  border-bottom: 1px solid var(--ip-border);
+}
+
+.ip-attribute-change-item:last-child {
+  border-bottom: none;
+}
+
+.ip-attribute-name {
+  font-weight: 500;
+  margin-bottom: 3px;
+  color: var(--ip-text);
+}
+
+.ip-attribute-value {
+  margin-bottom: 3px;
+  color: var(--ip-text);
+  word-break: break-word;
+}
+
+.ip-attribute-certification {
+  font-size: 0.85em;
+  color: var(--ip-text-light);
+  font-style: italic;
+}
+
+.ip-certification-label {
+  margin-right: 4px;
+}
+
+.ip-certification-value {
+  font-weight: 500;
 }

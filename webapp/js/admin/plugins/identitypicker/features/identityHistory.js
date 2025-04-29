@@ -72,19 +72,22 @@ export default class IdentityHistory {
             attrHistory.attribute_changes.forEach(change => {
                 const attributeValue = change.attribute_value || '';
                 const attributeChangeType = language.attributeChangeType || '';
+                const certificationProcess = change.certification_processus || '';
                 const formattedDate = this.formatDate(parseInt(change.modification_date));
 
                 allEvents.push({
-                    date: new Date(parseInt(change.modification_date)),
-                    type: 'attribute',
-                    data: {
-                        ...change,
-                        attribute_key: attrHistory.attribute_key
-                    },
-                    attributeLabel,
-                    attributeValue,
-                    attributeChangeType,
-                    searchableText: `${formattedDate} ${attributeLabel} ${attributeValue} ${attributeChangeType}`
+                date: new Date(parseInt(change.modification_date)),
+                type: 'attribute',
+                data: {
+                    ...change,
+                    attribute_key: attrHistory.attribute_key,
+                    certification_processus: certificationProcess
+                },
+                attributeLabel,
+                attributeValue,
+                attributeChangeType,
+                certificationProcess,
+                searchableText: `${formattedDate} ${attributeLabel} ${attributeValue} ${attributeChangeType} ${certificationProcess}`
                 });
             });
         });
@@ -148,6 +151,7 @@ export default class IdentityHistory {
                 'changeMessage',
                 'attributeLabel',
                 'attributeValue',
+                'certificationProcess',
                 'taskTypeText',
                 'statusText',
                 'metadataText',
@@ -175,6 +179,7 @@ export default class IdentityHistory {
                     { 'changeMessage': word },
                     { 'attributeLabel': word },
                     { 'attributeValue': word },
+                    { 'certificationProcess': word },
                     { 'taskTypeText': word },
                     { "taskCode": word },
                     { 'statusText': word },
@@ -342,27 +347,66 @@ export default class IdentityHistory {
             <div class="ip-identity-change-header">
                 <h3 class="change-type">${event.changeTypeText}</h3>
                 <span title="${this.identityPicker.rules.language.author}">${event.authorName}</span>
-                ${event.changeMessage ? `<br><small class="ip-change-message">${event.changeMessage}</small>` : ''}
             </div>
         `;
     }
 
     generateAttributeChangesTable(attributeEvents) {
         if (attributeEvents.length === 0) return '';
-        let html = `
-            <table class="ip-table">
-                <tbody>
-        `;
+        let html = `<div class="ip-attribute-changes-list">`;
         attributeEvents.forEach(event => {
-            html += `
-                <tr>
-                    <td>${event.attributeLabel}</td>
-                    <td>${event.attributeValue}</td>
-                </tr>
-            `;
+        const certInfo = this.getCertificationInfo(event.data.attribute_key, event.data.certification_processus);
+        const certLabel = certInfo.label || event.data.certification_processus || '-';
+        const certTitle = certInfo.description || '';
+        let attrValue = event.attributeValue || '-';
+
+        if (event.data.attribute_key === "gender") {
+            attrValue = event.attributeValue === '1' ? 'M' : event.attributeValue === '2' ? 'F' : 'ND';
+        }
+
+        html += `
+            <div class="ip-attribute-change-item">
+            <div class="ip-attribute-name">${event.attributeLabel}</div>
+            <div class="ip-attribute-value">${attrValue}</div>
+            <div class="ip-attribute-certification" title="${certTitle}">
+                <span class="ip-certification-label">${this.identityPicker.rules.language.attributeCertification || 'Certification'}:</span> 
+                <span class="ip-certification-value">${certLabel}</span>
+            </div>
+            </div>
+        `;
         });
-        html += '</tbody></table>';
+
+        html += '</div>';
         return html;
+    }
+
+    getCertificationInfo(attributeKey, certificationProcess) {
+        const process = this.identityPicker.rules.referential.processList.processus.find(p => p.code === certificationProcess);
+        if (process) {
+        const attributeCertification = process.attributeCertificationLevels.find(acl => acl.attributeKey === attributeKey);
+        if (attributeCertification) {
+            return {
+            label: process.label,
+            description: attributeCertification.level.description
+            };
+        }
+        }
+        return {
+        label: certificationProcess,
+        description: this.identityPicker.rules.language.certificationUnavailable
+        };
+    }
+    
+    copyToClipboard(text, button) {
+        navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = this.identityPicker.rules.language.copied || 'Copied!';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 2000);
+        }).catch(err => {
+        console.error('Failed to copy: ', err);
+        });
     }
 
     generateTaskChangeHTML(event) {
