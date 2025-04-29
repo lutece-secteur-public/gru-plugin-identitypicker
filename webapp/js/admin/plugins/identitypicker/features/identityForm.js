@@ -76,44 +76,68 @@ export default class IdentityForm {
         this.initializeFormBehavior(formId, mode);
     }
 
-    generateAttributeField(attrKey) {
-        if (attrKey === "birthcountry_code" || attrKey === "birthplace_code") {
-            const value = this.identity ? getAttributeValue(this.identity, attrKey) : '';
-            return `<input type="hidden" id="${attrKey}" name="${attrKey}" value="${value}">`;
-        }
+ generateAttributeField(attrKey) {
+  if (attrKey === "birthcountry_code" || attrKey === "birthplace_code") {
+    const value = this.identity ? getAttributeValue(this.identity, attrKey) : '';
+    return `<input type="hidden" id="${attrKey}" name="${attrKey}" value="${value}">`;
+  }
 
-        const attr = this.identityPicker.rules.contract.attributeDefinitions.find(a => a.keyName === attrKey);
-        if (!attr || !attr.attributeRight.writable) return '';
+  const attr = this.identityPicker.rules.contract.attributeDefinitions.find(a => a.keyName === attrKey);
+  if (!attr || !attr.attributeRight.writable) return '';
 
-        const identityAttr = this.identity ? this.identity.attributes.find(a => a.key === attrKey) : null;
-        const value = identityAttr ? identityAttr.value : '';
-
-        return `
+  const identityAttr = this.identity ? this.identity.attributes.find(a => a.key === attrKey) : null;
+  const value = identityAttr ? identityAttr.value : '';
+  
+  const currentCertLevel = identityAttr?.certProcess ? this.getCertificationLevel(attrKey, identityAttr.certProcess) : 0;
+    
+  const certOptions = attr.attributeCertifications
+    .sort((a, b) => parseInt(a.level) - parseInt(b.level))
+    .filter(cert => {
+      if (!identityAttr?.certProcess) return true;
+      
+      const certLevel = parseInt(cert.level);
+      const shouldInclude = certLevel >= currentCertLevel;
+            
+      return shouldInclude;
+    })
+    .map(cert => `<option value="${cert.code}" ${identityAttr?.certProcess === cert.code ? 'selected' : ''}>${cert.label} (${this.identityPicker.rules.language.qualityLabel} ${cert.level})</option>`)
+    .join('');
+  
+  return `
     ${attr.keyName === 'birthcountry' ? `<div class="ip-info-message info" id="birthcountry-message" style="display:none">
-        <p class="ip-info-message-main">▲ Veuillez fournir la date de naissance pour pouvoir saisir le pays de naissance</p>
+      <p class="ip-info-message-main">▲ Veuillez fournir la date de naissance pour pouvoir saisir le pays de naissance</p>
     </div>` : ''}
-
-       ${attr.keyName === 'birthplace' ? `<div class="ip-info-message info" id="birthplace-message" style="display:none">
-        <p class="ip-info-message-main">▲ Veuillez fournir le pays de naissance pour pouvoir saisir la commune de naissance</p>
+    ${attr.keyName === 'birthplace' ? `<div class="ip-info-message info" id="birthplace-message" style="display:none">
+      <p class="ip-info-message-main">▲ Veuillez fournir le pays de naissance pour pouvoir saisir la commune de naissance</p>
     </div>` : ''}
+    <div class="ip-form-row">
+      <div class="ip-form-input">
+        <label for="${attr.keyName}">${attr.name} ${attr.attributeRight.mandatory ? `<span class="ip-required">${this.identityPicker.rules.language.mandatory}</span>` : ''}</label>
+        ${this.getInputFieldHtml(attr, value)}
+        <div class="ip-field-error" id="${attr.keyName}-error" style="display: none;"></div>
+      </div>
+      <div class="ip-form-select">
+        <label for="${attr.keyName}-certification">${this.identityPicker.rules.language.selectCertification} <span class="ip-required" id="${attr.keyName}-cert-required" style="${!value ? 'display: none;' : ''}">${this.identityPicker.rules.language.mandatory}</span></label>
+        <select id="${attr.keyName}-certification" name="${attr.keyName}-certification" class="ip-select" ${value ? 'required' : ''}>
+          <option value="" ${!identityAttr?.certProcess ? 'selected' : ''} disabled>${this.identityPicker.rules.language.selectCertification}</option>
+          ${certOptions}
+        </select>
+        <div class="ip-field-error" id="${attr.keyName}-certification-error" style="display: none;"></div>
+      </div>
+    </div>`;
+}
 
-      <div class="ip-form-row">
-        <div class="ip-form-input">
-          <label for="${attr.keyName}">${attr.name} ${attr.attributeRight.mandatory ? `<span class="ip-required">${this.identityPicker.rules.language.mandatory}</span>` : ''}</label>
-          ${this.getInputFieldHtml(attr, value)}
-        </div>
-        <div class="ip-form-select">
-          <label for="${attr.keyName}-certification">${this.identityPicker.rules.language.selectCertification} ${attr.attributeRight.mandatory ? `<span class="ip-required">${this.identityPicker.rules.language.mandatory}</span>` : ''}</label>
-          <select id="${attr.keyName}-certification" name="${attr.keyName}-certification" class="ip-select" ${attr.attributeRight.mandatory ? 'required' : ''}>
-            <option value="" ${!identityAttr?.certProcess ? 'selected' : ''} disabled>${this.identityPicker.rules.language.selectCertification}</option>
-            ${attr.attributeCertifications
-                .sort((a, b) => parseInt(a.level) - parseInt(b.level))
-                .map(cert => `<option value="${cert.code}" ${identityAttr?.certProcess === cert.code ? 'selected' : ''}>${cert.label} (${this.identityPicker.rules.language.qualityLabel} ${cert.level})</option>`)
-                .join('')}
-          </select>
-        </div>
-      </div>`;
+
+getCertificationLevel(attributeKey, certificationProcess) {
+  const process = this.identityPicker.rules.referential.processList.processus.find(p => p.code === certificationProcess);
+  if (process) {
+    const attributeCertification = process.attributeCertificationLevels.find(acl => acl.attributeKey === attributeKey);
+    if (attributeCertification && attributeCertification.level) {
+      return parseInt(attributeCertification.level.level || 0);
     }
+  }
+  return 0;
+}
 
     getInputFieldHtml(attr, value) {
         if (attr.keyName === 'birthcountry') {
@@ -147,26 +171,215 @@ export default class IdentityForm {
     }
 
     initializeFormBehavior(formId, mode) {
-        this.initializeChoices();
-        this.initBirthcountrySelect();
-        this.applyFormRules();
-
-        const form = this.identityPicker.identityFormContainer.querySelector(`#${formId}`);
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            this.submitForm(event.target, mode);
-        });
-
-        const birthdateInput = this.identityPicker.identityFormContainer.querySelector('#birthdate');
-        const birthcountrySelect = this.identityPicker.identityFormContainer.querySelector('#birthcountry');
-
-        if (birthdateInput) {
-            birthdateInput.addEventListener('change', () => this.applyFormRules());
+    this.initializeChoices();
+    this.initBirthcountrySelect();
+    this.applyFormRules();
+    
+    const form = this.identityPicker.identityFormContainer.querySelector(`#${formId}`);
+    
+    const attributeInputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="date"], select:not([id$="-certification"])');
+    attributeInputs.forEach(input => {
+        if (input.value) {
+        this.validateAttributePair(input);
         }
-        if (birthcountrySelect) {
-            birthcountrySelect.addEventListener('change', () => this.applyFormRules());
+        
+        input.addEventListener('input', (event) => {
+        this.validateAttributePair(event.target);
+        });
+        
+        input.addEventListener('change', (event) => {
+        this.validateAttributePair(event.target);
+        });
+        
+        input.addEventListener('blur', (event) => {
+        this.validateAttributePair(event.target);
+        });
+    });
+    
+    const certSelects = form.querySelectorAll('select[id$="-certification"]');
+    certSelects.forEach(select => {
+        const inputId = select.id.replace('-certification', '');
+        const input = form.querySelector(`#${inputId}`);
+        if (input && input.value) {
+        this.validateCertificationLevel(select);
+        }
+        
+        select.addEventListener('change', (event) => {
+        this.validateCertificationLevel(event.target);
+        });
+    });
+    
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        
+        let isValid = true;
+        
+        attributeInputs.forEach(input => {
+        if (!this.validateAttributePair(input)) {
+            isValid = false;
+            input.focus();
+        }
+        });
+        
+        certSelects.forEach(select => {
+        if (!this.validateCertificationLevel(select)) {
+            isValid = false;
+            select.focus();
+        }
+        });
+        
+        if (isValid) {
+        const pivotAttributes = this.identityPicker.rules.referential.attributeKeyList.attributeKeys
+            .filter(attr => attr.pivot)
+            .map(attr => attr.keyName);
+        
+        if (this.validatePivotCertificationConsistency(pivotAttributes, form)) {
+            this.submitForm(event.target, mode);
+        } else {
+            isValid = false;
+        }
+        }
+        
+        if (!isValid) {
+        this.identityPicker.showMessage(
+            this.identityPicker.rules.language.formValidationError || 
+            'Veuillez corriger les erreurs dans le formulaire avant de soumettre', 
+            'error'
+        );
+        }
+    });
+    
+    const birthdateInput = this.identityPicker.identityFormContainer.querySelector('#birthdate');
+    const birthcountrySelect = this.identityPicker.identityFormContainer.querySelector('#birthcountry');
+    
+    if (birthdateInput) {
+        birthdateInput.addEventListener('change', () => this.applyFormRules());
+    }
+    
+    if (birthcountrySelect) {
+        birthcountrySelect.addEventListener('change', () => this.applyFormRules());
+    }
+    }
+
+    validateAttributePair(inputField) {
+    const attrKey = inputField.id;
+    const certSelect = this.identityPicker.identityFormContainer.querySelector(`#${attrKey}-certification`);
+    const certRequired = this.identityPicker.identityFormContainer.querySelector(`#${attrKey}-cert-required`);
+    const certError = this.identityPicker.identityFormContainer.querySelector(`#${attrKey}-certification-error`);
+    
+    if (!certSelect) return true;
+    
+    const isEmpty = !inputField.value || inputField.value.trim() === '';
+    
+    if (isEmpty) {
+        certSelect.required = false;
+        if (certRequired) certRequired.style.display = 'none';
+        if (certError) {
+        certError.style.display = 'none';
+        certError.textContent = '';
+        }
+        return true;
+    } else {
+        certSelect.required = true;
+        if (certRequired) certRequired.style.display = 'inline';
+        
+        if (!certSelect.value) {
+        if (certError) {
+            certError.textContent = this.identityPicker.rules.language.certificationRequired || 'La certification est obligatoire';
+            certError.style.display = 'block';
+        }
+        certSelect.classList.add('ip-error-input');
+        return false;
+        } else {
+        if (certError) {
+            certError.style.display = 'none';
+            certError.textContent = '';
+        }
+        certSelect.classList.remove('ip-error-input');
+        return true;
         }
     }
+    }
+
+
+    validateCertificationLevel(certSelect) {
+    const attrKey = certSelect.id.replace('-certification', '');
+    const inputField = this.identityPicker.identityFormContainer.querySelector(`#${attrKey}`);
+    const certError = this.identityPicker.identityFormContainer.querySelector(`#${attrKey}-certification-error`);
+    
+    if (!inputField) return true;
+    
+    const isEmpty = !inputField.value || inputField.value.trim() === '';
+    
+    if (!isEmpty && !certSelect.value) {
+        if (certError) {
+        certError.textContent = this.identityPicker.rules.language.certificationRequired || 'La certification est obligatoire';
+        certError.style.display = 'block';
+        }
+        certSelect.classList.add('ip-error-input');
+        return false;
+    } else {
+        if (certError) {
+        certError.style.display = 'none';
+        certError.textContent = '';
+        }
+        certSelect.classList.remove('ip-error-input');
+        return true;
+    }
+    }
+
+validatePivotCertificationConsistency(pivotAttributes, form) {
+  let highestLevel = 0;
+  const pivotCertLevels = {};
+  
+  for (const attrKey of pivotAttributes) {
+    const inputField = form.querySelector(`#${attrKey}`);
+    const certSelect = form.querySelector(`#${attrKey}-certification`);
+    
+    if (inputField && certSelect && inputField.value && certSelect.value) {
+      const certLevel = this.getCertificationLevel(attrKey, certSelect.value);
+      pivotCertLevels[attrKey] = certLevel;
+      
+      if (certLevel > highestLevel) {
+        highestLevel = certLevel;
+      }
+    }
+  }
+  
+  if (highestLevel >= 400) {
+    const filledPivotAttrs = Object.keys(pivotCertLevels);
+    const hasInconsistentLevels = filledPivotAttrs.some(key => pivotCertLevels[key] !== highestLevel);
+    
+    if (hasInconsistentLevels) {
+      this.identityPicker.showMessage(
+        this.identityPicker.rules.language.inconsistentCertification || 
+        'Les niveaux de certification des attributs pivots doivent être cohérents (tous du même niveau si ≥ 400)',
+        'error'
+      );
+      
+      for (const attrKey of filledPivotAttrs) {
+        if (pivotCertLevels[attrKey] !== highestLevel) {
+          const certSelect = form.querySelector(`#${attrKey}-certification`);
+          const certError = form.querySelector(`#${attrKey}-certification-error`);
+          
+          if (certSelect) {
+            certSelect.classList.add('ip-error-input');
+          }
+          
+          if (certError) {
+            certError.textContent = this.identityPicker.rules.language.inconsistentCertLevelForAttr || 
+              'Niveau de certification incohérent, doit être le même que les autres attributs pivots';
+            certError.style.display = 'block';
+          }
+        }
+      }
+      
+      return false;
+    }
+  }
+  
+  return true;
+}
 
     async submitForm(form, mode) {
         const formData = new FormData(form);
@@ -307,77 +520,36 @@ export default class IdentityForm {
         const birthplaceMessage = this.identityPicker.identityFormContainer.querySelector('#birthplace-message');
         const birthcountryMessage = this.identityPicker.identityFormContainer.querySelector('#birthcountry-message');
     
-        console.log('Form elements:', {
-            birthdateInput,
-            birthcountrySelect,
-            birthcountryCodeInput,
-            birthplaceInput,
-            birthplaceCodeInput
-        });
-    
         if (birthdateInput && birthcountrySelect && birthplaceInput) {
             const isBirthdateEmpty = birthdateInput.value.trim() === '';
             const isBirthcountryCodeEmpty = !birthcountryCodeInput || birthcountryCodeInput.value.trim() === '';
     
-            console.log('State checks:', {
-                isBirthdateEmpty,
-                isBirthcountryCodeEmpty,
-                birthdateValue: birthdateInput.value,
-                birthcountryCodeValue: birthcountryCodeInput?.value
-            });
-    
             birthcountrySelect.disabled = isBirthdateEmpty;
             birthcountryMessage.style.display = isBirthdateEmpty ? 'block' : 'none';
     
-            console.log('Birthcountry state:', {
-                selectDisabled: birthcountrySelect.disabled,
-                messageDisplay: birthcountryMessage.style.display
-            });
-    
             if (this.birthcountryChoices) {
-                console.log('Birthcountry choices before:', {
-                    exists: !!this.birthcountryChoices,
-                    isEnabled: !this.birthcountryChoices.disabled
-                });
-                
+
                 isBirthdateEmpty ? this.birthcountryChoices.disable() : this.birthcountryChoices.enable();
-                
-                console.log('Birthcountry choices after:', {
-                    isEnabled: !this.birthcountryChoices.disabled
-                });
+
             }
     
             const shouldEnableBirthplace = !isBirthdateEmpty && !isBirthcountryCodeEmpty;
-            console.log('Birthplace enable check:', { shouldEnableBirthplace });
     
             birthplaceInput.disabled = !shouldEnableBirthplace;
             birthplaceMessage.style.display = shouldEnableBirthplace ? 'none' : 'block';
     
-            console.log('Birthplace state:', {
-                inputDisabled: birthplaceInput.disabled,
-                messageDisplay: birthplaceMessage.style.display
-            });
     
             if (shouldEnableBirthplace) {
                 if (birthcountryCodeInput.value === '99100') {
-                    console.log('Setting up birthplace as select');
                     this.setupBirthplaceSelect(birthplaceInput, birthplaceCodeInput);
                 } else {
-                    console.log('Setting up birthplace as input');
                     this.setupBirthplaceInput(birthplaceInput, birthplaceCodeInput);
                 }
             }
     
             if (!shouldEnableBirthplace && this.birthplaceChoices) {
-                console.log('Disabling birthplace choices');
                 this.birthplaceChoices.disable();
             }
-        } else {
-            console.log('Required form elements missing:', {
-                hasBirthdateInput: !!birthdateInput,
-                hasBirthcountrySelect: !!birthcountrySelect,
-                hasBirthplaceInput: !!birthplaceInput
-            });
         }
     }
 
@@ -503,13 +675,19 @@ export default class IdentityForm {
     }
 
     handleSaveError(error) {
-        if (error.status && error.status.attributes_status) {
-            this.displayFieldErrors(error.status.attributes_status);
-        } else {
-            this.identityPicker.showMessage(error.status.message || 'An error occurred while saving', 'error');
-        }
-    }
-
+  this.clearFieldErrors();
+  
+  if (error.status && error.status.attributes_status) {
+    this.displayFieldErrors(error.status.attributes_status);
+  } else if (error.status && error.status.message) {
+ 
+    this.identityPicker.showMessage(errorMessage, 'error');
+    console.error('Erreur serveur:', error.status);
+  } else {
+    this.identityPicker.showMessage(this.identityPicker.rules.language.unknownError || 'Une erreur inconnue est survenue', 'error');
+    console.error('Erreur non catégorisée:', error);
+  }
+}
 
     displayFieldErrors(attributesStatus) {
         this.clearFieldErrors();
