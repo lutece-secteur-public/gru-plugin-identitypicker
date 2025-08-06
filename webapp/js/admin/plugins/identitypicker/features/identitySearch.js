@@ -93,7 +93,7 @@ export default class IdentitySearch {
         try {
             const response = await fetch(url);
             if (response.status === 404) {
-                this.identityPicker.showMessage('noResults', 'info');
+                this.displayResults([]);
                 return;
             }
             if (!response.ok) throw new Error(`${this.identityPicker.rules.language.httpError} ${response.status}`);
@@ -121,21 +121,31 @@ export default class IdentitySearch {
 
     displayResults(results) {
         const resultsContainer = this.identityPicker.resultsContainer;
-
+        
         if (results.length === 0) {
-            this.identityPicker.showMessage('noResults', 'info');
-            return;
+            if (!this.identityPicker.permissions.creation) {
+                this.identityPicker.showMessage('noResults', 'info');
+                return;
+            }
+            
+            const searchData = this.getSearchData();
+            const searchCriteria = this.buildSearchCriteriaHTML(searchData);
+            const noResultsMessage = this.identityPicker.rules.language.noResults || 'Aucun résultat trouvé';
+            resultsContainer.innerHTML = `
+                ${searchCriteria}
+                <div class="ip-info-message info" style="margin-top: 20px;">
+                    <p class="ip-info-message-main">${noResultsMessage}</p>
+                </div>
+            `;
+        } else {
+            const searchData = this.getSearchData();
+            const searchCriteria = this.buildSearchCriteriaHTML(searchData);
+            const resultsHtml = results.map(result => this.createResultItem(result)).join('');
+            resultsContainer.innerHTML = `
+                ${searchCriteria}
+                <ul class="ip-results-list">${resultsHtml}</ul>
+            `;
         }
-
-        const searchData = this.getSearchData();
-        const searchCriteria = this.buildSearchCriteriaHTML(searchData);
-
-        const resultsHtml = results.map(result => this.createResultItem(result)).join('');
-
-        resultsContainer.innerHTML = `
-            ${searchCriteria}
-            <ul class="ip-results-list">${resultsHtml}</ul>
-        `;
 
         this.addActionButtons(results);
         this.identityPicker.showResultsView();
@@ -291,12 +301,15 @@ export default class IdentitySearch {
     }
 
     addActionButtons(results) {
-        if (results.length === 0 && !this.identityPicker.permissions.creation) return;
+        const hasCompareButton = results.length > 1;
+        const hasCreateButton = this.identityPicker.permissions.creation;
+        
+        if (!hasCompareButton && !hasCreateButton) return;
 
         const buttonContainer = document.createElement('div');
         buttonContainer.classList.add('ip-container-buttons');
 
-        if (results.length > 1) {
+        if (hasCompareButton) {
             const compareButton = document.createElement('button');
             compareButton.textContent = this.identityPicker.rules.language.compareButton;
             compareButton.classList.add('ip-button-light');
@@ -307,7 +320,7 @@ export default class IdentitySearch {
             buttonContainer.appendChild(compareButton);
         }
 
-        if (this.identityPicker.permissions.creation) {
+        if (hasCreateButton) {
             const createButton = document.createElement('button');
             createButton.textContent = this.identityPicker.rules.language.createButton;
             createButton.classList.add('ip-create-button');
