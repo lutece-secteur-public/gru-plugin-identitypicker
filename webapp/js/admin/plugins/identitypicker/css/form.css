@@ -204,3 +204,16 @@
   font-size: 14px;
 
 }
+
+.ip-readonly-field {
+  opacity: 0.8;
+}
+
+.ip-readonly-value {
+  padding: 0.5rem;
+  background-color: var(--ip-input-disabled);
+  border: 1px solid var(--ip-border);
+  border-radius: 8px;
+  color: var(--ip-text-secondary);
+  font-weight: 500;
+}

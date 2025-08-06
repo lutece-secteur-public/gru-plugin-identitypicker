@@ -83,7 +83,27 @@ export default class IdentityForm {
   }
 
   const attr = this.identityPicker.rules.contract.attributeDefinitions.find(a => a.keyName === attrKey);
-  if (!attr || !attr.attributeRight.writable) return '';
+  if (!attr) return '';
+  
+  const isWritable = attr.attributeRight && attr.attributeRight.writable;
+  const isEditable = this.isFieldEditable(attrKey, isWritable);
+  
+  if (!isEditable && this.identity) {
+    const identityAttr = this.identity.attributes.find(a => a.key === attrKey);
+    const value = identityAttr ? identityAttr.value : '';
+    if (!value) return '';
+    
+    const displayValue = this.getDisplayValue(attrKey, value);
+    return `
+      <div class="ip-form-row ip-readonly-field">
+        <div class="ip-form-input">
+          <label for="${attr.keyName}">${attr.name}</label>
+          <div class="ip-readonly-value">${displayValue}</div>
+        </div>
+      </div>`;
+  }
+  
+  if (!isWritable) return '';
 
   const identityAttr = this.identity ? this.identity.attributes.find(a => a.key === attrKey) : null;
   const value = identityAttr ? identityAttr.value : '';
@@ -668,6 +688,33 @@ validatePivotCertificationConsistency(pivotAttributes, form) {
             return matchingValue ? matchingValue.label : value;
         }
         return value;
+    }
+
+    isFieldEditable(attrKey, isWritable) {
+        // In creation mode, all writable fields are editable
+        if (!this.identity) {
+            return isWritable;
+        }
+        
+        // In modification mode, check if field can be modified
+        const identityAttr = this.identity.attributes.find(a => a.key === attrKey);
+        
+        // If field has no value, it can be edited if writable
+        if (!identityAttr || !identityAttr.value) {
+            return isWritable;
+        }
+        
+        // Check certification level - fields with high certification might not be editable
+        if (identityAttr.certProcess) {
+            const certLevel = this.getCertificationLevel(attrKey, identityAttr.certProcess);
+            // Fields with certification level >= 400 are not editable
+            if (certLevel >= 400) {
+                return false;
+            }
+        }
+        
+        // Otherwise, field is editable if writable
+        return isWritable;
     }
 
     handleSaveError(error) {
