@@ -422,19 +422,15 @@ validatePivotCertificationConsistency(pivotAttributes, form) {
         } catch (error) {
             console.error(this.identityPicker.rules.language.fetchError, error);
             
-            let errorMessage;
-            if (error.status && error.status.message) {
-                errorMessage = error.status.message;
+            if (error.status && (error.status.attributes_status || error.status.message)) {
                 this.handleSaveError(error);
             } else if (error instanceof Response) {
-                errorMessage = `${this.identityPicker.rules.language.httpError} ${error.status}`;
+                const errorMessage = `${this.identityPicker.rules.language.httpError} ${error.status}`;
+                this.identityPicker.showMessage('errorMessage', 'error', errorMessage);
             } else {
-                errorMessage = error.message || this.identityPicker.rules.language.unknownError;
+                const errorMessage = error.message || this.identityPicker.rules.language.unknownError;
+                this.identityPicker.showMessage('errorMessage', 'error', errorMessage);
             }
-    
-            const messageType = errorMessage.includes('403') ? 'noPermissions' : 'errorMessage';
-            this.identityPicker.showMessage(messageType, 'error', errorMessage);
-            this.clearFieldErrors();
     
         } finally {
             this.identityPicker.hideLoading();
@@ -675,38 +671,63 @@ validatePivotCertificationConsistency(pivotAttributes, form) {
     }
 
     handleSaveError(error) {
-  this.clearFieldErrors();
-  
-  if (error.status && error.status.attributes_status) {
-    this.displayFieldErrors(error.status.attributes_status);
-  } else if (error.status && error.status.message) {
- 
-    this.identityPicker.showMessage(errorMessage, 'error');
-    console.error('Erreur serveur:', error.status);
-  } else {
-    this.identityPicker.showMessage(this.identityPicker.rules.language.unknownError || 'Une erreur inconnue est survenue', 'error');
-    console.error('Erreur non catégorisée:', error);
-  }
-}
+        this.clearFieldErrors();
+        
+        if (error.status && error.status.attributes_status) {
+            this.displayFieldErrors(error.status.attributes_status);
+            
+            const generalMessage = error.status.message || this.identityPicker.rules.language.validationError || 'Erreur de validation';
+            this.identityPicker.showMessage('errorMessage', 'error', generalMessage);
+        } else if (error.status && error.status.message) {
+            this.identityPicker.showMessage('errorMessage', 'error', error.status.message);
+            console.error('Erreur serveur:', error.status);
+        } else {
+            this.identityPicker.showMessage('errorMessage', 'error', this.identityPicker.rules.language.unknownError || 'Une erreur inconnue est survenue');
+            console.error('Erreur non catégorisée:', error);
+        }
+    }
 
     displayFieldErrors(attributesStatus) {
         this.clearFieldErrors();
+        
+        let firstErrorField = null;
 
         attributesStatus.forEach(attribute => {
             const inputField = this.identityPicker.identityFormContainer.querySelector(`[name="${attribute.key}"]`);
             if (inputField) {
-                const errorMessage = document.createElement('div');
-                errorMessage.className = 'ip-field-error';
-                errorMessage.textContent = attribute.message;
-                inputField.parentNode.insertBefore(errorMessage, inputField.nextSibling);
                 inputField.classList.add('ip-error-input');
+                
+                if (!firstErrorField) {
+                    firstErrorField = inputField;
+                }
+                
+                const existingErrorDiv = this.identityPicker.identityFormContainer.querySelector(`#${attribute.key}-error`);
+                if (existingErrorDiv) {
+                    existingErrorDiv.textContent = attribute.message;
+                    existingErrorDiv.style.display = 'block';
+                } else {
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'ip-field-error';
+                    errorMessage.textContent = attribute.message;
+                    inputField.parentNode.insertBefore(errorMessage, inputField.nextSibling);
+                }
             }
         });
+        
+        if (firstErrorField) {
+            setTimeout(() => {
+                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstErrorField.focus();
+            }, 100);
+        }
     }
 
     clearFieldErrors() {
         const errorMessages = this.identityPicker.identityFormContainer.querySelectorAll('.ip-field-error');
-        errorMessages.forEach(msg => msg.remove());
+        errorMessages.forEach(msg => {
+            msg.textContent = '';
+            msg.style.display = 'none';
+        });
         const errorInputs = this.identityPicker.identityFormContainer.querySelectorAll('.ip-error-input');
         errorInputs.forEach(input => input.classList.remove('ip-error-input'));
     }
