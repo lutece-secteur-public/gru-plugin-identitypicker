@@ -1,5 +1,5 @@
 import Choices from 'choices.js';
-import { debounce, getAttributeValue } from '../utils/utils';
+import { debounce, getAttributeValue, getAttributeInfo, getCertificationInfo, getDisplayValue } from '../utils/utils';
 
 export default class IdentityForm {
     /**
@@ -103,12 +103,12 @@ export default class IdentityForm {
         const attr = this.identityPicker.rules.contract.attributeDefinitions.find(a => a.keyName === attrKey);
         if (!attr) return '';
         const isWritable = attr.attributeRight && attr.attributeRight.writable;
-        const isEditable = this.isFieldEditable(attrKey, isWritable);
+        const isEditable = isWritable;
         if (!isEditable && this.identity) {
             const identityAttr = this.identity.attributes.find(a => a.key === attrKey);
             const value = identityAttr ? identityAttr.value : '';
             if (!value) return '';
-            const displayValue = this.getDisplayValue(attrKey, value);
+            const displayValue = getDisplayValue(attrKey, value, this.identityPicker.rules.referential);
             return `
                 <div class="ip-form-row ip-readonly-field">
                     <div class="ip-form-input">
@@ -669,74 +669,6 @@ export default class IdentityForm {
         if (birthplaceCodeInput) {
             birthplaceCodeInput.value = '';
         }
-    }
-
-    /**
-     * Gets attribute information by key.
-     * @param {string} key - The attribute key
-     * @returns {Object} Object containing label and description
-     */
-    getAttributeInfo(key) {
-        const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
-        return {
-            label: attributeKey ? attributeKey.name : key,
-            description: attributeKey ? attributeKey.description : ''
-        };
-    }
-
-    /**
-     * Gets certification information for an attribute.
-     * @param {string} attributeKey - The attribute key
-     * @param {string} certificationProcess - The certification process code
-     * @returns {Object} Object containing label and description for the certification
-     */
-    getCertificationInfo(attributeKey, certificationProcess) {
-        const process = this.identityPicker.rules.referential.processList.processus.find(p => p.code === certificationProcess);
-        if (process) {
-            const attributeCertification = process.attributeCertificationLevels.find(acl => acl.attributeKey === attributeKey);
-            if (attributeCertification) {
-                return {
-                    label: process.label,
-                    description: attributeCertification.level.description
-                };
-            }
-        }
-        return {
-            label: certificationProcess,
-            description: this.identityPicker.rules.language.certificationUnavailable
-        };
-    }
-
-    /**
-     * Gets the display value for an attribute, handling value mappings.
-     * @param {string} key - The attribute key
-     * @param {string} value - The raw value
-     * @returns {string} The display value (mapped label or raw value)
-     */
-    getDisplayValue(key, value) {
-        const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
-        if (attributeKey && attributeKey.values) {
-            const matchingValue = attributeKey.values.find(v => v.value === value);
-            return matchingValue ? matchingValue.label : value;
-        }
-        return value;
-    }
-
-    /**
-     * Determines if a field is editable based on certification level.
-     * @param {string} attrKey - The attribute key
-     * @param {boolean} isWritable - Whether the field has write permissions
-     * @returns {boolean} True if editable, false otherwise
-     */
-    isFieldEditable(attrKey, isWritable) {
-        if (!this.identity) {
-            return isWritable;
-        }
-        const identityAttr = this.identity.attributes.find(a => a.key === attrKey);
-        if (!identityAttr || !identityAttr.value) {
-            return isWritable;
-        }
-        return isWritable;
     }
 
     /**

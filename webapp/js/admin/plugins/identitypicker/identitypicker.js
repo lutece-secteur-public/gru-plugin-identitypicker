@@ -69,7 +69,7 @@ export default class IdentityPicker {
             this.identityView = new IdentityView(this);
             this.identityForm = new IdentityForm(this);
             this.identityHistory = new IdentityHistory(this);
-            this.indentityCompare = new IdentityCompare(this);
+            this.identityCompare = new IdentityCompare(this);
             await this.createModal();
             if (this.config.autoFill && this.config.cuid != null && this.config.cuid !== '') {
                 setTimeout(() => this.identityView.autoFillIdentity(this.config.cuid), 0);
@@ -353,7 +353,7 @@ export default class IdentityPicker {
         this.backButton.onclick = () => this.showResultsView();
         this.modalContent.classList.add('wide-view');
         this.setHeaderTitle(this.rules.language.compareTitle);
-        this.indentityCompare.renderCompareTable();
+        this.identityCompare.renderCompareTable();
     }
 
     /**

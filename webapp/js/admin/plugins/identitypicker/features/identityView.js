@@ -1,4 +1,4 @@
-import { getAttributeValue, formatDate } from '../utils/utils';
+import { getAttributeValue, formatDate, getAttributeInfo, getCertificationInfo, getDisplayValue } from '../utils/utils';
 
 export default class IdentityView {
     /**
@@ -25,7 +25,6 @@ export default class IdentityView {
             this.fillFields(identityData);
         } catch (error) {
             console.error(this.identityPicker.rules.language.fetchError, error);
-        } finally {
         }
     }
 
@@ -152,8 +151,8 @@ export default class IdentityView {
                         <td class="ip-table-separator" colspan="3">${groupLabel}</td>
                     </tr>`;
                 attrs.forEach(attr => {
-                    const certInfo = this.getCertificationInfo(attr.key, attr.certification);
-                    const displayValue = this.getDisplayValue(attr.key, attr.value);
+                    const certInfo = getCertificationInfo(attr.key, attr.certification, this.identityPicker.rules.referential, this.identityPicker.rules.language);
+                    const displayValue = getDisplayValue(attr.key, attr.value, this.identityPicker.rules.referential);
                     tableHTML += `
                         <tr>
                             <td>${attr.name}</td>
@@ -236,41 +235,6 @@ export default class IdentityView {
         return groupedAttributes;
     }
 
-    /**
-     * Gets attribute information by key.
-     * @param {string} key - The attribute key
-     * @returns {Object} Object containing label and description
-     */
-    getAttributeInfo(key) {
-        const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
-        return {
-            label: attributeKey ? attributeKey.name : key,
-            description: attributeKey ? attributeKey.description : ''
-        };
-    }
-
-    /**
-     * Gets certification information for an attribute.
-     * @param {string} attributeKey - The attribute key
-     * @param {string} certificationProcess - The certification process code
-     * @returns {Object} Object containing label and description for the certification
-     */
-    getCertificationInfo(attributeKey, certificationProcess) {
-        const process = this.identityPicker.rules.referential.processList.processus.find(p => p.code === certificationProcess);
-        if (process) {
-            const attributeCertification = process.attributeCertificationLevels.find(acl => acl.attributeKey === attributeKey);
-            if (attributeCertification) {
-                return {
-                    label: process.label,
-                    description: attributeCertification.level.description
-                };
-            }
-        }
-        return {
-            label: certificationProcess,
-            description: this.identityPicker.rules.language.certificationUnavailable
-        };
-    }
 
     /**
      * Gets the CSS class for coverage display based on coverage value.
@@ -283,20 +247,6 @@ export default class IdentityView {
         return 'ip-tag-success';
     }
 
-    /**
-     * Gets the display value for an attribute, handling value mappings.
-     * @param {string} key - The attribute key
-     * @param {string} value - The raw value
-     * @returns {string} The display value (mapped label or raw value)
-     */
-    getDisplayValue(key, value) {
-        const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
-        if (attributeKey && attributeKey.values) {
-            const matchingValue = attributeKey.values.find(v => v.value === value);
-            return matchingValue ? matchingValue.label : value;
-        }
-        return value;
-    }
 
     /**
      * Fills form fields with identity data based on field mapping configuration.

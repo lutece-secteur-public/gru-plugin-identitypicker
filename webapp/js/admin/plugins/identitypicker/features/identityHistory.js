@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js';
-import { getAttributeInfo } from '../utils/utils';
+import { getAttributeInfo, getCertificationInfo } from '../utils/utils';
 
 export default class IdentityHistory {
     /**
@@ -448,7 +448,7 @@ export default class IdentityHistory {
         if (attributeEvents.length === 0) return '';
         let html = `<div class="ip-attribute-changes-list">`;
         attributeEvents.forEach(event => {
-            const certInfo = this.getCertificationInfo(event.data.attribute_key, event.data.certification_processus);
+            const certInfo = getCertificationInfo(event.data.attribute_key, event.data.certification_processus, this.identityPicker.rules.referential, this.identityPicker.rules.language);
             const certLabel = certInfo.label || event.data.certification_processus || '-';
             const certTitle = certInfo.description || '';
             let attrValue = event.attributeValue || '-';
@@ -476,22 +476,6 @@ export default class IdentityHistory {
      * @param {string} certificationProcess - The certification process code
      * @returns {Object} Object containing label and description for the certification
      */
-    getCertificationInfo(attributeKey, certificationProcess) {
-        const process = this.identityPicker.rules.referential.processList.processus.find(p => p.code === certificationProcess);
-        if (process) {
-            const attributeCertification = process.attributeCertificationLevels.find(acl => acl.attributeKey === attributeKey);
-            if (attributeCertification) {
-                return {
-                    label: process.label,
-                    description: attributeCertification.level.description
-                };
-            }
-        }
-        return {
-            label: certificationProcess,
-            description: this.identityPicker.rules.language.certificationUnavailable
-        };
-    }
 
     /**
      * Copies text to clipboard and shows feedback.

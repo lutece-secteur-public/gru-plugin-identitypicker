@@ -1,4 +1,4 @@
-import { formatDate } from '../utils/utils';
+import { formatDate, getAttributeValue, toTitleCase, removeAccents } from '../utils/utils';
 
 export default class IdentitySearch {
     /**
@@ -264,13 +264,13 @@ export default class IdentitySearch {
     createResultItem(result) {
         const searchData = this.getSearchData();
         
-        const firstName = this.getAttributeValue(result, 'first_name');
-        const lastName = this.getAttributeValue(result, 'family_name');
-        const preferredUsername = this.getAttributeValue(result, 'preferred_username');
-        const birthdate = this.getAttributeValue(result, 'birthdate');
-        const gender = this.getAttributeValue(result, 'gender');
-        const birthcountry = this.getAttributeValue(result, 'birthcountry');
-        const birthplace = this.getAttributeValue(result, 'birthplace');
+        const firstName = getAttributeValue(result, 'first_name');
+        const lastName = getAttributeValue(result, 'family_name');
+        const preferredUsername = getAttributeValue(result, 'preferred_username');
+        const birthdate = getAttributeValue(result, 'birthdate');
+        const gender = getAttributeValue(result, 'gender');
+        const birthcountry = getAttributeValue(result, 'birthcountry');
+        const birthplace = getAttributeValue(result, 'birthplace');
         
         let formattedGender = 'ND';
         if (gender === '1') {
@@ -280,7 +280,7 @@ export default class IdentitySearch {
         }
         
         const formattedLastName = lastName.toUpperCase();
-        const formattedFirstName = this.toTitleCase(firstName);
+        const formattedFirstName = toTitleCase(firstName);
         const formattedPreferredUsername = preferredUsername ? preferredUsername.toUpperCase() : '';
         
         const searchOption = this.identityPicker.searchContainer.querySelector('input[name="searchType"]:checked').value;
@@ -322,18 +322,6 @@ export default class IdentitySearch {
         `;
     }
 
-    /**
-     * Converts a string to title case (first letter uppercase, rest lowercase).
-     * @param {string} str - The string to convert
-     * @returns {string} The converted string in title case
-     */
-    toTitleCase(str) {
-        if (!str) return '';
-        
-        return str.split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ');
-    }
 
     /**
      * Checks if there's an approximate match between search and result strings.
@@ -344,8 +332,8 @@ export default class IdentitySearch {
     isApproximateMatch(search, result) {
         if (!search || !result) return false;
         
-        const searchNormalized = this.removeAccents(search.toLowerCase());
-        const resultNormalized = this.removeAccents(result.toLowerCase());
+        const searchNormalized = removeAccents(search.toLowerCase());
+        const resultNormalized = removeAccents(result.toLowerCase());
         
         if (searchNormalized === resultNormalized) return false;
         
@@ -385,7 +373,7 @@ export default class IdentitySearch {
             compareButton.textContent = this.identityPicker.rules.language.compareButton;
             compareButton.classList.add('ip-button-light');
             compareButton.addEventListener('click', () => {
-                this.identityPicker.indentityCompare.initCompareView(results);
+                this.identityPicker.identityCompare.initCompareView(results);
                 this.identityPicker.showCompareView();
             });
             buttonContainer.appendChild(compareButton);
@@ -402,16 +390,6 @@ export default class IdentitySearch {
         this.identityPicker.resultsContainer.appendChild(buttonContainer);
     }
 
-    /**
-     * Gets the value of a specific attribute from an identity result.
-     * @param {Object} result - The identity result object
-     * @param {string} key - The attribute key to look for
-     * @returns {string} The attribute value or empty string if not found
-     */
-    getAttributeValue(result, key) {
-        const attribute = result.attributes.find(attr => attr.key === key);
-        return attribute ? attribute.value : '';
-    }
 
     /**
      * Sets up click handler for result items to show details view.
@@ -427,27 +405,6 @@ export default class IdentitySearch {
         });
     }
 
-    /**
-     * Determines the badge color class based on percentage value.
-     * @param {number} percentage - The percentage value (0-100)
-     * @returns {string} The CSS class name for the badge color
-     */
-    getBadgeColorClass(percentage) {
-        if (percentage >= 80) return 'ip-tag-success';
-        if (percentage >= 50) return 'ip-tag-warning';
-        return 'ip-tag-error';
-    }
-
-    /**
-     * Determines the color class based on percentage value.
-     * @param {number} percentage - The percentage value (0-100)
-     * @returns {string} The CSS class name for the color
-     */
-    getColorClass(percentage) {
-        if (percentage >= 80) return 'ip-high';
-        if (percentage >= 50) return 'ip-medium';
-        return 'ip-low';
-    }
 
     /**
      * Retrieves the current search form data.
@@ -462,75 +419,5 @@ export default class IdentitySearch {
         };
     }
 
-    /**
-     * Removes accents from a string for normalization purposes.
-     * @param {string} str - The string to normalize
-     * @returns {string} The string without accents
-     */
-    removeAccents(str) {
-        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    }
 
-    /**
-     * Highlights differences between search string and result string.
-     * @param {string} search - The search string
-     * @param {string} result - The result string to compare against
-     * @returns {string} HTML string with highlighted differences
-     */
-    highlightDifferences(search, result) {
-        if (!search || !result) return result;
-        
-        let searchNormalized = this.removeAccents(search.toLowerCase());
-        let resultNormalized = this.removeAccents(result.toLowerCase());
-        
-        let highlightedResult = '';
-        let searchIndex = 0;
-        let inHighlight = false;
-        
-        for (let i = 0; i < result.length; i++) {
-            if (searchIndex < searchNormalized.length && resultNormalized[i] === searchNormalized[searchIndex]) {
-                if (inHighlight) {
-                    highlightedResult += '</span>';
-                    inHighlight = false;
-                }
-                highlightedResult += result[i];
-                searchIndex++;
-            } else {
-                if (!inHighlight) {
-                    highlightedResult += '<span class="ip-highlight">';
-                    inHighlight = true;
-                }
-                highlightedResult += result[i];
-            }
-        }
-        
-        if (inHighlight) {
-            highlightedResult += '</span>';
-        }
-        
-        return highlightedResult;
-    }
-
-    /**
-     * Highlights differences in last name, considering preferred username.
-     * @param {string} search - The search string
-     * @param {string} lastName - The last name to compare
-     * @param {string} preferredUsername - The preferred username to compare
-     * @returns {string} HTML string with the best match highlighted
-     */
-    highlightLastNameDifferences(search, lastName, preferredUsername) {
-        const lastNameMatch = this.highlightDifferences(search, lastName);
-        const preferredUsernameMatch = preferredUsername ? this.highlightDifferences(search, preferredUsername) : '';
-        
-        if (!preferredUsername) return lastNameMatch;
-        
-        const lastNameDiffCount = (lastNameMatch.match(/<span class="ip-highlight">/g) || []).length;
-        const preferredUsernameDiffCount = (preferredUsernameMatch.match(/<span class="ip-highlight">/g) || []).length;
-        
-        if (lastNameDiffCount <= preferredUsernameDiffCount) {
-            return `${lastNameMatch} <span class="ip-preferred-name">(${preferredUsername})</span>`;
-        } else {
-            return `${lastName} <span class="ip-preferred-name">(${preferredUsernameMatch})</span>`;
-        }
-    }
 }

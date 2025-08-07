@@ -1,4 +1,4 @@
-import { formatDate } from '../utils/utils';
+import { formatDate, getAttributeInfo, getDisplayValue, normalizeString, toTitleCase } from '../utils/utils';
 
 export default class IdentityCompare {
     /**
@@ -165,7 +165,7 @@ export default class IdentityCompare {
             { key: 'gender', label: this.identityPicker.rules.language.gender || "Sexe", formatter: this.formatGender.bind(this) },
             { key: 'family_name', label: this.identityPicker.rules.language.familyName || "Nom de naissance", formatter: value => value.toUpperCase() },
             { key: 'preferred_username', label: this.identityPicker.rules.language.preferredUsername || "Nom d'usage", formatter: value => `<i>${value.toUpperCase()}</i>` },
-            { key: 'first_name', label: this.identityPicker.rules.language.firstName || "Prénoms", formatter: this.formatFirstName.bind(this) },
+            { key: 'first_name', label: this.identityPicker.rules.language.firstName || "Prénoms", formatter: toTitleCase },
             { key: 'birthdate', label: this.identityPicker.rules.language.birthdate || "Date de naissance" },
             { key: 'birthcountry', label: this.identityPicker.rules.language.birthcountry || "Pays de naissance" },
             { key: 'birthcountry_code', label: this.identityPicker.rules.language.birthcountryCode || "Code INSEE pays" },
@@ -250,7 +250,7 @@ export default class IdentityCompare {
                 if (attrDef.formatter && value) {
                     value = attrDef.formatter(value);
                 }
-                if (index > 0 && this.normalizeString(value) !== this.normalizeString(referenceValue)) {
+                if (index > 0 && normalizeString(value) !== normalizeString(referenceValue)) {
                     return `<td class="ip-difference">${value || ''}</td>`;
                 }
                 return `<td>${value || ''}</td>`;
@@ -293,17 +293,6 @@ export default class IdentityCompare {
         return 'ND';
     }
 
-    /**
-     * Formats first name with proper capitalization.
-     * @param {string} firstName - The first name to format
-     * @returns {string} Formatted first name
-     */
-    formatFirstName(firstName) {
-        if (!firstName) return '';
-        return firstName.split(' ')
-            .map(name => name.charAt(0).toUpperCase() + name.slice(1).toLowerCase())
-            .join(' ');
-    }
 
     /**
      * Gets an attribute value from an identity.
@@ -313,43 +302,10 @@ export default class IdentityCompare {
      */
     getAttrValue(identity, key) {
         const attr = identity.attributes.find(a => a.key === key);
-        return attr ? this.getDisplayValue(key, attr.value) : '';
+        return attr ? getDisplayValue(key, attr.value, this.identityPicker.rules.referential) : '';
     }
 
-    /**
-     * Gets the display value for an attribute, handling value mappings.
-     * @param {string} key - The attribute key
-     * @param {string} value - The raw value
-     * @returns {string} The display value (mapped label or raw value)
-     */
-    getDisplayValue(key, value) {
-        if (!value) return '';
-        const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
-        if (attributeKey && attributeKey.values) {
-            const matchingValue = attributeKey.values.find(v => v.value === value);
-            return matchingValue ? matchingValue.label : value;
-        }
-        return value;
-    }
 
-    /**
-     * Normalizes a string for comparison by removing accents and formatting.
-     * @param {string} str - The string to normalize
-     * @returns {string} Normalized string
-     */
-    normalizeString(str) {
-        if (!str) return '';
-        if (str.includes('<')) {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = str;
-            str = tempDiv.textContent || tempDiv.innerText || '';
-        }
-        return str
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLowerCase()
-            .trim();
-    }
 
     /**
      * Gets the CSS class based on percentage value.
@@ -363,37 +319,5 @@ export default class IdentityCompare {
         return 'ip-percentage-low';
     }
 
-    /**
-     * Gets all unique attributes from all identities.
-     * @returns {Array<Object>} Array of unique attribute definitions
-     */
-    getAllAttributes() {
-        const attributesMap = new Map();
-        this.identities.forEach(identity => {
-            identity.attributes.forEach(attr => {
-                if (!attributesMap.has(attr.key)) {
-                    const attributeInfo = this.getAttributeInfo(attr.key);
-                    attributesMap.set(attr.key, {
-                        key: attr.key,
-                        label: attributeInfo.label,
-                        description: attributeInfo.description,
-                    });
-                }
-            });
-        });
-        return Array.from(attributesMap.values());
-    }
 
-    /**
-     * Gets attribute information by key.
-     * @param {string} key - The attribute key
-     * @returns {Object} Object containing label and description
-     */
-    getAttributeInfo(key) {
-        const attributeKey = this.identityPicker.rules.referential.attributeKeyList.attributeKeys.find(attr => attr.keyName === key);
-        return {
-            label: attributeKey ? attributeKey.name : key,
-            description: attributeKey ? attributeKey.description : '',
-        };
-    }
 }
