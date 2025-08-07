@@ -121,6 +121,16 @@ export default class IdentityForm {
         const identityAttr = this.identity ? this.identity.attributes.find(a => a.key === attrKey) : null;
         const value = identityAttr ? identityAttr.value : '';
         const currentCertLevel = identityAttr?.certProcess ? this.getCertificationLevel(attrKey, identityAttr.certProcess) : 0;
+        
+        let currentCertOption = '';
+        if (identityAttr?.certProcess) {
+            const currentCertInList = attr.attributeCertifications.find(cert => cert.code === identityAttr.certProcess);
+            if (!currentCertInList) {
+                const certInfo = getCertificationInfo(attrKey, identityAttr.certProcess, this.identityPicker.rules.referential, this.identityPicker.rules.language);
+                currentCertOption = `<option value="${identityAttr.certProcess}" selected>${certInfo.label} (${this.identityPicker.rules.language.qualityLabel} ${currentCertLevel})</option>`;
+            }
+        }
+        
         const certOptions = attr.attributeCertifications
             .sort((a, b) => parseInt(a.level) - parseInt(b.level))
             .filter(cert => {
@@ -146,8 +156,9 @@ export default class IdentityForm {
                 </div>
                 <div class="ip-form-select">
                     <label for="${attr.keyName}-certification">${this.identityPicker.rules.language.selectCertification} <span class="ip-required" id="${attr.keyName}-cert-required" style="${!value ? 'display: none;' : ''}">${this.identityPicker.rules.language.mandatory}</span></label>
-                    <select id="${attr.keyName}-certification" name="${attr.keyName}-certification" class="ip-select" ${value ? 'required' : ''}>
+                    <select id="${attr.keyName}-certification" name="${attr.keyName}-certification" class="ip-select" ${value ? 'required' : ''} data-initial-cert="${identityAttr?.certProcess || ''}" data-initial-level="${currentCertLevel}">
                         <option value="" ${!identityAttr?.certProcess ? 'selected' : ''} disabled>${this.identityPicker.rules.language.selectCertification}</option>
+                        ${currentCertOption}
                         ${certOptions}
                     </select>
                     <div class="ip-field-error" id="${attr.keyName}-certification-error" style="display: none;"></div>
@@ -348,6 +359,18 @@ export default class IdentityForm {
             certSelect.classList.add('ip-error-input');
             return false;
         } else {
+            const initialLevel = parseInt(certSelect.dataset.initialLevel || '0');
+            if (initialLevel > 0 && certSelect.value) {
+                const newLevel = this.getCertificationLevel(attrKey, certSelect.value);
+                if (newLevel < initialLevel) {
+                    if (certError) {
+                        certError.textContent = this.identityPicker.rules.language.certificationLowerLevel || `Le niveau de certification doit être supérieur ou égal au niveau actuel (${initialLevel})`;
+                        certError.style.display = 'block';
+                    }
+                    certSelect.classList.add('ip-error-input');
+                    return false;
+                }
+            }
             if (certError) {
                 certError.style.display = 'none';
                 certError.textContent = '';
