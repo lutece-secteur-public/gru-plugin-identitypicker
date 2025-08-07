@@ -2,12 +2,21 @@ import Fuse from 'fuse.js';
 import { getAttributeInfo } from '../utils/utils';
 
 export default class IdentityHistory {
+    /**
+     * Creates an instance of IdentityHistory.
+     * @param {Object} identityPicker - The identity picker instance
+     */
     constructor(identityPicker) {
         this.identityPicker = identityPicker;
         this.globalHistory = [];
         this.fuse = null;
     }
 
+    /**
+     * Loads and displays the complete history for an identity.
+     * @param {string} customerId - The customer ID to load history for
+     * @returns {Promise<void>}
+     */
     async loadGlobalHistory(customerId) {
         this.identityPicker.showLoading(this.identityPicker.rules.language.loadingHistory);
         try {
@@ -26,6 +35,11 @@ export default class IdentityHistory {
         }
     }
 
+    /**
+     * Fetches identity history data from the API.
+     * @param {string} customerId - The customer ID
+     * @returns {Promise<Object>} The identity history data
+     */
     async fetchIdentityHistory(customerId) {
         const url = `${this.identityPicker.config.endpoints.identity}/${customerId}/${this.identityPicker.config.endpoints.history}`;
         const response = await fetch(url);
@@ -35,6 +49,11 @@ export default class IdentityHistory {
         return response.json();
     }
 
+    /**
+     * Fetches identity tasks data from the API.
+     * @param {string} customerId - The customer ID
+     * @returns {Promise<Object>} The tasks data
+     */
     async fetchIdentityTasks(customerId) {
         const url = `${this.identityPicker.config.endpoints.identity}/${customerId}/${this.identityPicker.config.endpoints.tasks}`;
         const response = await fetch(url);
@@ -44,16 +63,20 @@ export default class IdentityHistory {
         return response.json();
     }
 
+    /**
+     * Merges identity history and tasks data into a unified timeline.
+     * @param {Object} identityHistory - The identity history data
+     * @param {Array} tasksData - The tasks data
+     * @returns {Array} Sorted array of all history events
+     */
     mergeHistoryData(identityHistory, tasksData) {
         const allEvents = [];
         const language = this.identityPicker.rules.language;
-
         identityHistory.identity_changes.forEach(change => {
             const changeTypeText = language.history[change.changeType.toLowerCase()]?.[change.changeStatus.toLowerCase()] || '';
             const authorName = change.author?.author_name || language.unknown;
             const changeMessage = change.changeMessage || '';
             const formattedDate = this.formatDate(parseInt(change.modificationDate));
-
             allEvents.push({
                 date: new Date(parseInt(change.modificationDate)),
                 type: 'identity',
@@ -64,34 +87,30 @@ export default class IdentityHistory {
                 searchableText: `${formattedDate} ${changeTypeText} ${authorName} ${changeMessage}`
             });
         });
-
         identityHistory.attribute_histories.forEach(attrHistory => {
             const attributeInfo = getAttributeInfo(attrHistory.attribute_key, this.identityPicker.rules.referential);
             const attributeLabel = attributeInfo?.label || '';
-
             attrHistory.attribute_changes.forEach(change => {
                 const attributeValue = change.attribute_value || '';
                 const attributeChangeType = language.attributeChangeType || '';
                 const certificationProcess = change.certification_processus || '';
                 const formattedDate = this.formatDate(parseInt(change.modification_date));
-
                 allEvents.push({
-                date: new Date(parseInt(change.modification_date)),
-                type: 'attribute',
-                data: {
-                    ...change,
-                    attribute_key: attrHistory.attribute_key,
-                    certification_processus: certificationProcess
-                },
-                attributeLabel,
-                attributeValue,
-                attributeChangeType,
-                certificationProcess,
-                searchableText: `${formattedDate} ${attributeLabel} ${attributeValue} ${attributeChangeType} ${certificationProcess}`
+                    date: new Date(parseInt(change.modification_date)),
+                    type: 'attribute',
+                    data: {
+                        ...change,
+                        attribute_key: attrHistory.attribute_key,
+                        certification_processus: certificationProcess
+                    },
+                    attributeLabel,
+                    attributeValue,
+                    attributeChangeType,
+                    certificationProcess,
+                    searchableText: `${formattedDate} ${attributeLabel} ${attributeValue} ${attributeChangeType} ${certificationProcess}`
                 });
             });
         });
-
         tasksData.forEach(task => {
             task.task_history.forEach(change => {
                 const taskLanguage = language.tasks;
@@ -115,17 +134,29 @@ export default class IdentityHistory {
                 });
             });
         });
-
         allEvents.sort((a, b) => b.date - a.date);
-
         return allEvents;
     }
 
+    /**
+     * Gets the localized task type text.
+     * @param {string} taskType - The task type code
+     * @param {Object} languageTasks - The language tasks object
+     * @returns {string} Localized task type text
+     */
     getTaskTypeText(taskType, languageTasks) {
         const key = taskType.toLowerCase();
         return languageTasks[key]?.label || taskType;
     }
 
+    /**
+     * Gets the localized task change type text.
+     * @param {string} taskType - The task type code
+     * @param {string} changeType - The change type code
+     * @param {string} status - The status code
+     * @param {Object} languageTasks - The language tasks object
+     * @returns {string} Localized task change type text
+     */
     getTaskChangeTypeText(taskType, changeType, status, languageTasks) {
         const taskKey = taskType.toLowerCase();
         const changeKey = changeType.toLowerCase();
@@ -133,12 +164,23 @@ export default class IdentityHistory {
         return languageTasks[taskKey]?.[changeKey]?.[statusKey] || `${taskType} ${changeType} ${status}`;
     }
 
+    /**
+     * Gets the localized task status text.
+     * @param {string} taskType - The task type code
+     * @param {string} status - The status code
+     * @param {Object} languageTasks - The language tasks object
+     * @returns {string} Localized task status text
+     */
     getTaskStatusText(taskType, status, languageTasks) {
         const taskKey = taskType.toLowerCase();
         const statusKey = status.toLowerCase();
         return languageTasks[taskKey]?.status?.[statusKey] || status;
     }
 
+    /**
+     * Initializes Fuse.js for fuzzy search functionality.
+     * @returns {void}
+     */
     initFuseSearch() {
         const options = {
             includeScore: true,
@@ -159,17 +201,19 @@ export default class IdentityHistory {
                 'searchableText'
             ]
         };
-
         this.fuse = new Fuse(this.globalHistory, options);
     }
 
+    /**
+     * Searches history with fuzzy matching.
+     * @param {string} query - The search query
+     * @returns {Array} Filtered and sorted history events
+     */
     searchHistory(query) {
         if (!query) {
             return this.globalHistory;
         }
-
         const queryWords = query.split(' ').filter(Boolean);
-
         const searchPattern = {
             $and: queryWords.map(word => ({
                 $or: [
@@ -188,26 +232,31 @@ export default class IdentityHistory {
                 ]
             }))
         };
-
         const results = this.fuse.search(searchPattern);
         const sortedResults = results.map(result => result.item)
             .sort((a, b) => b.date - a.date);
         return sortedResults;
     }
 
+    /**
+     * Displays the global history in the side container.
+     * @param {Array} globalHistory - The history events to display
+     * @returns {void}
+     */
     displayGlobalHistory(globalHistory) {
         const historyHTML = this.generateGlobalHistoryHTML(globalHistory);
         const searchBarHTML = this.generateSearchBarHTML();
-
         this.identityPicker.openSideContainer(
             this.identityPicker.rules.language.historyTitle,
             searchBarHTML + `<div class="ip-timeline">${historyHTML}</div>`
         );
-
-
         this.attachListener();
     }
 
+    /**
+     * Generates HTML for the search bar.
+     * @returns {string} HTML string for search bar
+     */
     generateSearchBarHTML() {
         return `
             <div class="ip-search-bar">
@@ -216,6 +265,10 @@ export default class IdentityHistory {
         `;
     }
 
+    /**
+     * Attaches event listeners to search input and copy buttons.
+     * @returns {void}
+     */
     attachListener() {
         const searchInput = this.identityPicker.sideContainer.querySelector('.ip-search-input');
         searchInput.addEventListener('input', (e) => {
@@ -230,21 +283,23 @@ export default class IdentityHistory {
                 const taskCode = e.target.dataset.taskCode;
                 this.copyToClipboard(taskCode, e.target);
             });
-        }
-        );
+        });
     }
 
+    /**
+     * Generates HTML for the complete history timeline.
+     * @param {Array} globalHistory - The history events
+     * @returns {string} HTML string for history timeline
+     */
     generateGlobalHistoryHTML(globalHistory) {
         let html = '';
         let currentDate = null;
         let currentDateEvents = [];
         globalHistory.forEach(event => {
             if (event.type === 'task') {
-                // Render tasks individually
                 html += this.renderSingleEvent(event);
             } else {
                 const eventDate = this.formatDateForGrouping(event.date);
-
                 if (eventDate !== currentDate) {
                     if (currentDate) {
                         html += this.renderDateEvents(currentDate, currentDateEvents);
@@ -255,13 +310,17 @@ export default class IdentityHistory {
                 currentDateEvents.push(event);
             }
         });
-
         if (currentDate) {
             html += this.renderDateEvents(currentDate, currentDateEvents);
         }
         return html;
     }
 
+    /**
+     * Renders a single timeline event.
+     * @param {Object} event - The event to render
+     * @returns {string} HTML string for single event
+     */
     renderSingleEvent(event) {
         return `
             <div class="ip-timeline-item">
@@ -274,16 +333,20 @@ export default class IdentityHistory {
                         </span>
                     </div>
                     ${this.generateTaskChangeHTML(event)}
-
                 </div>
             </div>
         `;
     }
 
+    /**
+     * Renders events grouped by date.
+     * @param {string} date - The formatted date string
+     * @param {Array} events - Events for this date
+     * @returns {string} HTML string for date-grouped events
+     */
     renderDateEvents(date, events) {
         const eventTypes = this.getEventTypes(events);
         const groupedEvents = this.groupEventsByType(events);
-
         const hasAttribute = eventTypes.includes('attribute');
         const typesToDisplay = hasAttribute ? ['attribute'] : eventTypes;
         return `
@@ -302,6 +365,11 @@ export default class IdentityHistory {
         `;
     }
 
+    /**
+     * Groups events by their type.
+     * @param {Array} events - Events to group
+     * @returns {Object} Events grouped by type
+     */
     groupEventsByType(events) {
         const grouped = {
             identity: [],
@@ -314,6 +382,11 @@ export default class IdentityHistory {
         return grouped;
     }
 
+    /**
+     * Renders grouped events by type.
+     * @param {Object} groupedEvents - Events grouped by type
+     * @returns {string} HTML string for grouped events
+     */
     renderGroupedEvents(groupedEvents) {
         let html = '';
         if (groupedEvents.identity.length > 0) {
@@ -328,10 +401,20 @@ export default class IdentityHistory {
         return html;
     }
 
+    /**
+     * Gets unique event types from an array of events.
+     * @param {Array} events - Array of events
+     * @returns {Array} Array of unique event types
+     */
     getEventTypes(events) {
         return [...new Set(events.map(event => event.type))];
     }
 
+    /**
+     * Gets the localized label for an event type.
+     * @param {string} type - The event type
+     * @returns {string} Localized event type label
+     */
     getEventTypeLabel(type) {
         const labels = {
             identity: this.identityPicker.rules.language.identityChangeType,
@@ -341,6 +424,11 @@ export default class IdentityHistory {
         return labels[type] || type;
     }
 
+    /**
+     * Generates HTML for identity change header.
+     * @param {Object} event - The identity change event
+     * @returns {string} HTML string for identity change header
+     */
     generateIdentityChangeHeader(event) {
         if (!event) return '';
         return `
@@ -351,77 +439,101 @@ export default class IdentityHistory {
         `;
     }
 
+    /**
+     * Generates HTML table for attribute changes.
+     * @param {Array} attributeEvents - Array of attribute change events
+     * @returns {string} HTML string for attribute changes table
+     */
     generateAttributeChangesTable(attributeEvents) {
         if (attributeEvents.length === 0) return '';
         let html = `<div class="ip-attribute-changes-list">`;
         attributeEvents.forEach(event => {
-        const certInfo = this.getCertificationInfo(event.data.attribute_key, event.data.certification_processus);
-        const certLabel = certInfo.label || event.data.certification_processus || '-';
-        const certTitle = certInfo.description || '';
-        let attrValue = event.attributeValue || '-';
-
-        if (event.data.attribute_key === "gender") {
-            attrValue = event.attributeValue === '1' ? 'M' : event.attributeValue === '2' ? 'F' : 'ND';
-        }
-
-        html += `
-            <div class="ip-attribute-change-item">
-            <div class="ip-attribute-name">${event.attributeLabel}</div>
-            <div class="ip-attribute-value">${attrValue}</div>
-            <div class="ip-attribute-certification" title="${certTitle}">
-                <span class="ip-certification-label">${this.identityPicker.rules.language.attributeCertification || 'Certification'}:</span> 
-                <span class="ip-certification-value">${certLabel}</span>
-            </div>
-            </div>
-        `;
+            const certInfo = this.getCertificationInfo(event.data.attribute_key, event.data.certification_processus);
+            const certLabel = certInfo.label || event.data.certification_processus || '-';
+            const certTitle = certInfo.description || '';
+            let attrValue = event.attributeValue || '-';
+            if (event.data.attribute_key === "gender") {
+                attrValue = event.attributeValue === '1' ? 'M' : event.attributeValue === '2' ? 'F' : 'ND';
+            }
+            html += `
+                <div class="ip-attribute-change-item">
+                    <div class="ip-attribute-name">${event.attributeLabel}</div>
+                    <div class="ip-attribute-value">${attrValue}</div>
+                    <div class="ip-attribute-certification" title="${certTitle}">
+                        <span class="ip-certification-label">${this.identityPicker.rules.language.attributeCertification || 'Certification'}:</span>
+                        <span class="ip-certification-value">${certLabel}</span>
+                    </div>
+                </div>
+            `;
         });
-
         html += '</div>';
         return html;
     }
 
+    /**
+     * Gets certification information for an attribute.
+     * @param {string} attributeKey - The attribute key
+     * @param {string} certificationProcess - The certification process code
+     * @returns {Object} Object containing label and description for the certification
+     */
     getCertificationInfo(attributeKey, certificationProcess) {
         const process = this.identityPicker.rules.referential.processList.processus.find(p => p.code === certificationProcess);
         if (process) {
-        const attributeCertification = process.attributeCertificationLevels.find(acl => acl.attributeKey === attributeKey);
-        if (attributeCertification) {
-            return {
-            label: process.label,
-            description: attributeCertification.level.description
-            };
-        }
+            const attributeCertification = process.attributeCertificationLevels.find(acl => acl.attributeKey === attributeKey);
+            if (attributeCertification) {
+                return {
+                    label: process.label,
+                    description: attributeCertification.level.description
+                };
+            }
         }
         return {
-        label: certificationProcess,
-        description: this.identityPicker.rules.language.certificationUnavailable
+            label: certificationProcess,
+            description: this.identityPicker.rules.language.certificationUnavailable
         };
     }
-    
+
+    /**
+     * Copies text to clipboard and shows feedback.
+     * @param {string} text - Text to copy
+     * @param {HTMLElement} button - The button element clicked
+     * @returns {void}
+     */
     copyToClipboard(text, button) {
         navigator.clipboard.writeText(text).then(() => {
-        const originalText = button.textContent;
-        button.textContent = this.identityPicker.rules.language.copied || 'Copied!';
-        setTimeout(() => {
-            button.textContent = originalText;
-        }, 2000);
+            const originalText = button.textContent;
+            button.textContent = this.identityPicker.rules.language.copied || 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
         }).catch(err => {
-        console.error('Failed to copy: ', err);
+            console.error('Failed to copy: ', err);
         });
     }
 
+    /**
+     * Generates HTML for task change display.
+     * @param {Object} event - The task change event
+     * @returns {string} HTML string for task change
+     */
     generateTaskChangeHTML(event) {
         return `
-           <div class="ip-task-change">
-            <h3 class="change-type">${event.changeTypeText}</h3>
-            <span title="${this.identityPicker.rules.language.author}">${event.authorName}</span><br>
-            <button class="ip-copy-button" data-task-code="${event.taskCode}">
-                ${event.taskCode ? `${event.taskCode.substring(0, 15)}...` : 'Copy'}
-            </button>
-            <small>${this.generateTaskMetadata(event.data.task.metadata)}</small>
+            <div class="ip-task-change">
+                <h3 class="change-type">${event.changeTypeText}</h3>
+                <span title="${this.identityPicker.rules.language.author}">${event.authorName}</span><br>
+                <button class="ip-copy-button" data-task-code="${event.taskCode}">
+                    ${event.taskCode ? `${event.taskCode.substring(0, 15)}...` : 'Copy'}
+                </button>
+                <small>${this.generateTaskMetadata(event.data.task.metadata)}</small>
             </div>
         `;
     }
 
+    /**
+     * Generates HTML for task metadata display.
+     * @param {Object} metadata - The task metadata object
+     * @returns {string} HTML string for task metadata
+     */
     generateTaskMetadata(metadata) {
         if (!metadata || Object.keys(metadata).length === 0) return '';
         let html = `<div class="ip-task-metadata">`;
@@ -432,6 +544,11 @@ export default class IdentityHistory {
         return html;
     }
 
+    /**
+     * Formats a timestamp into a localized date string.
+     * @param {number|Date} timestamp - The timestamp to format
+     * @returns {string} Formatted date string
+     */
     formatDate(timestamp) {
         return new Date(timestamp).toLocaleString(this.identityPicker.config.locale, {
             year: 'numeric',
@@ -443,6 +560,11 @@ export default class IdentityHistory {
         });
     }
 
+    /**
+     * Formats a date for grouping in the timeline.
+     * @param {Date} date - The date to format
+     * @returns {string} Formatted date string for grouping
+     */
     formatDateForGrouping(date) {
         return date.toLocaleString(this.identityPicker.config.locale, {
             year: 'numeric',
@@ -451,18 +573,6 @@ export default class IdentityHistory {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit'
-        });
-    }
-
-    copyToClipboard(text, button) {
-        navigator.clipboard.writeText(text).then(() => {
-            const originalText = button.textContent;
-            button.textContent = this.identityPicker.rules.language.copied || 'Copied!';
-            setTimeout(() => {
-                button.textContent = originalText;
-            }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
         });
     }
 }

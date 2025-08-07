@@ -21,7 +21,7 @@
             </#if>
         </button>
         <script type="module">
-        import IdentityPicker from './js/admin/plugins/identitypicker/dist/identitypicker.min.js';
+        import IdentityPicker from './js/admin/plugins/identitypicker/dist/identitypicker.min.js?v=${.now?long}';
         const defaultConfig = {
             choices: {
                 minSearchLength: 3,
