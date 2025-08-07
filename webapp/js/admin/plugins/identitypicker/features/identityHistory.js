@@ -222,7 +222,7 @@ export default class IdentityHistory {
             const query = e.target.value;
             const filteredHistory = this.searchHistory(query);
             const historyHTML = this.generateGlobalHistoryHTML(filteredHistory);
-            document.querySelector('.ip-timeline').innerHTML = historyHTML;
+            this.identityPicker.shadowRoot.querySelector('.ip-timeline').innerHTML = historyHTML;
         });
         searchInput.focus();
         this.identityPicker.sideContainer.querySelectorAll('.ip-copy-button').forEach(button => {

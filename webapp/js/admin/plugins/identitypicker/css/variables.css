@@ -1,3 +1,4 @@
+:host,
 :root {
   --ip-bg: #fff;
   --ip-text: #0d0c22;
@@ -61,4 +62,8 @@
   --ip-tag-text-sauge: #6A6E6D;
   --ip-tag-bg-sauge: #d4d8d6;
   --ip-tag-border-sauge: #DDDFDC;
+}
+
+* {
+  color: inherit;
 }

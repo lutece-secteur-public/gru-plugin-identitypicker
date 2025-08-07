@@ -1,17 +1,17 @@
-import './css/variables.css';
-import './css/modal.css';
-import './css/confirmModal.css';
-import './css/form.css';
-import './css/buttons.css';
-import './css/messages.css';
-import './css/results.css';
-import './css/animations.css';
-import './css/dark-theme.css';
-import './css/details.css';
-import './css/tags.css';
-import './css/loader.css';
-import './css/history.css';
-import 'choices.js/public/assets/styles/choices.min.css';
+import variablesCSS from './css/variables.css';
+import modalCSS from './css/modal.css';
+import confirmModalCSS from './css/confirmModal.css';
+import formCSS from './css/form.css';
+import buttonsCSS from './css/buttons.css';
+import messagesCSS from './css/messages.css';
+import resultsCSS from './css/results.css';
+import animationsCSS from './css/animations.css';
+import darkThemeCSS from './css/dark-theme.css';
+import detailsCSS from './css/details.css';
+import tagsCSS from './css/tags.css';
+import loaderCSS from './css/loader.css';
+import historyCSS from './css/history.css';
+import choicesCSS from 'choices.js/public/assets/styles/choices.min.css';
 
 import { defaultConfig } from './utils/config';
 import IdentitySearch from './features/identitySearch';
@@ -27,6 +27,8 @@ export default class IdentityPicker {
     this.permissions = { search: false, creation: false, update: false, view: false, create_task: false };
     this.openButton = document.getElementById(`ip-open-button-${uniqueId}`);
     this.rules = null;
+    this.shadowRoot = null;
+    this.shadowHost = null;
     this.init();
   }
 
@@ -115,6 +117,41 @@ export default class IdentityPicker {
   }
 
   async createModal() {
+    // Create shadow host
+    this.shadowHost = document.createElement('div');
+    this.shadowHost.id = `ip-shadow-host-${this.uniqueId}`;
+    document.body.appendChild(this.shadowHost);
+    
+    // Create shadow root
+    this.shadowRoot = this.shadowHost.attachShadow({ mode: 'open' });
+    
+    // Inject all CSS into shadow DOM
+    const styleElement = document.createElement('style');
+    const allStyles = [
+      choicesCSS,
+      variablesCSS,
+      modalCSS,
+      confirmModalCSS,
+      formCSS,
+      buttonsCSS,
+      messagesCSS,
+      resultsCSS,
+      animationsCSS,
+      darkThemeCSS,
+      detailsCSS,
+      tagsCSS,
+      loaderCSS,
+      historyCSS,
+    ];
+    
+    // Concatenate all styles - handle both string and default export cases
+    styleElement.textContent = allStyles.map(style => 
+      typeof style === 'string' ? style : (style && style.default ? style.default : '')
+    ).join('\n');
+    
+    this.shadowRoot.appendChild(styleElement);
+    
+    // Create modal inside shadow DOM
     this.modal = document.createElement('div');
     this.modal.className = 'ip-modal';
 
@@ -123,26 +160,26 @@ export default class IdentityPicker {
     }
 
     this.modal.innerHTML = this.getModalHTML();
-    document.body.appendChild(this.modal);
+    this.shadowRoot.appendChild(this.modal);
 
-    this.modalContent = this.modal.querySelector('.ip-modal-content');
-    this.searchContainer = this.modal.querySelector('.ip-search-container');
-    this.resultsContainer = this.modal.querySelector('.ip-results-container');
-    this.detailsContainer = this.modal.querySelector('.ip-details-container');
-    this.historyContainer = this.modal.querySelector('.ip-history-container');
-    this.compareContainer = this.modal.querySelector('.ip-compare-container');
-    this.identityFormContainer = this.modal.querySelector('.ip-create-identity-container');
-    this.backButton = this.modal.querySelector('.ip-back');
-    this.infoMessage = this.modal.querySelector('.ip-info-message');
-    this.contentArea = this.modal.querySelector('.ip-content-area');
-    this.headerTitle = this.modal.querySelector('.ip-header h2');
-    this.modalHeader = this.modal.querySelector('.ip-header');
-    this.modalFooter = this.modal.querySelector('.ip-footer');
-    this.modalScrollableContent = this.modal.querySelectorAll('.ip-scrollable-content');
+    this.modalContent = this.shadowRoot.querySelector('.ip-modal-content');
+    this.searchContainer = this.shadowRoot.querySelector('.ip-search-container');
+    this.resultsContainer = this.shadowRoot.querySelector('.ip-results-container');
+    this.detailsContainer = this.shadowRoot.querySelector('.ip-details-container');
+    this.historyContainer = this.shadowRoot.querySelector('.ip-history-container');
+    this.compareContainer = this.shadowRoot.querySelector('.ip-compare-container');
+    this.identityFormContainer = this.shadowRoot.querySelector('.ip-create-identity-container');
+    this.backButton = this.shadowRoot.querySelector('.ip-back');
+    this.infoMessage = this.shadowRoot.querySelector('.ip-info-message');
+    this.contentArea = this.shadowRoot.querySelector('.ip-content-area');
+    this.headerTitle = this.shadowRoot.querySelector('.ip-header h2');
+    this.modalHeader = this.shadowRoot.querySelector('.ip-header');
+    this.modalFooter = this.shadowRoot.querySelector('.ip-footer');
+    this.modalScrollableContent = this.shadowRoot.querySelectorAll('.ip-scrollable-content');
 
     await this.identitySearch.initSearchView();
 
-    this.modal.querySelector('.ip-close').addEventListener('click', () => this.closeModal());
+    this.shadowRoot.querySelector('.ip-close').addEventListener('click', () => this.closeModal());
     this.backButton.addEventListener('click', () => this.showSearchView());
   }
 
@@ -189,7 +226,7 @@ export default class IdentityPicker {
   }
 
   initSideContainer() {
-    this.sideContainer = this.modal.querySelector('.ip-side-container');
+    this.sideContainer = this.shadowRoot.querySelector('.ip-side-container');
     this.sideContent = this.sideContainer.querySelector('.ip-content-area');
     this.sideCloseButton = this.sideContainer.querySelector('.ip-side-close');
 
@@ -359,7 +396,7 @@ export default class IdentityPicker {
   showLoading(message = this.rules.language.loading) {
     this.closeSideContainer();
     this.scrollToTop();
-    const loadingContainer = this.modal.querySelector('.ip-loading-container');
+    const loadingContainer = this.shadowRoot.querySelector('.ip-loading-container');
     const loadingMessage = loadingContainer.querySelector('.ip-loading-message') || this.createLoadingMessage();
     loadingMessage.textContent = message;
     loadingContainer.style.display = 'flex';
@@ -377,14 +414,14 @@ export default class IdentityPicker {
     this.hideInfoMessage();
     const messageElement = document.createElement('div');
     messageElement.className = 'ip-loading-message';
-    const loadingContainer = this.modal.querySelector('.ip-loading-container');
+    const loadingContainer = this.shadowRoot.querySelector('.ip-loading-container');
     loadingContainer.appendChild(messageElement);
     return messageElement;
   }
 
   hideLoading() {
     this.scrollToTop();
-    const loadingContainer = this.modal.querySelector('.ip-loading-container');
+    const loadingContainer = this.shadowRoot.querySelector('.ip-loading-container');
     loadingContainer.classList.remove('show');
     setTimeout(() => {
       loadingContainer.style.display = 'none';
@@ -411,7 +448,7 @@ export default class IdentityPicker {
     } else {
       this.showSearchView();
     }
-    document.body.classList.add('ip-body');
+    document.body.style.overflow = 'hidden';
     requestAnimationFrame(() => {
       this.modal.classList.add('ip-modal-open');
       this.adjustModalHeight();
@@ -422,14 +459,14 @@ export default class IdentityPicker {
     this.modal.classList.remove('ip-modal-open');
     this.modal.classList.add('ip-modal-closing');
     setTimeout(() => {
-      document.body.classList.remove('ip-body');
+      document.body.style.overflow = '';
       this.modal.style.display = 'none';
       this.modal.classList.remove('ip-modal-closing');
     }, 300);
   }
 
   showConfirmDialog(title, message, onConfirm) {
-    // Create modal container
+    // Create modal container inside shadow DOM
     const modal = document.createElement('div');
     modal.className = 'ip-confirm-modal ip-modal ip-modal-open';
     modal.innerHTML = `
@@ -447,7 +484,7 @@ export default class IdentityPicker {
       </div>
     `;
        // Add event listeners
-       const closeModal = () => document.body.removeChild(modal);
+       const closeModal = () => this.shadowRoot.removeChild(modal);
     
        modal.querySelector('.ip-cancel-btn').addEventListener('click', closeModal);
        
@@ -463,7 +500,7 @@ export default class IdentityPicker {
          }
        });
    
-       // Add to document
-       document.body.appendChild(modal);
+       // Add to shadow DOM
+       this.shadowRoot.appendChild(modal);
       };
 }

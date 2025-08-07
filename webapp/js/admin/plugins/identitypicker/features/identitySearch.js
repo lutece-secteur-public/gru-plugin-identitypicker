@@ -156,7 +156,7 @@ export default class IdentitySearch {
         const searchOption = this.identityPicker.searchContainer.querySelector('input[name="searchType"]:checked').value;
 
         if (searchOption === 'email') {
-            const emailInput = document.getElementById(`ip-email-input-${this.uniqueId}`);
+            const emailInput = this.identityPicker.shadowRoot.querySelector(`#ip-email-input-${this.uniqueId}`);
             const email = emailInput ? emailInput.value : '';
             if (!email) return '';
 
@@ -358,7 +358,7 @@ export default class IdentitySearch {
     }
 
     getSearchData() {
-        const nameForm = document.getElementById(`ip-name-form-${this.uniqueId}`);
+        const nameForm = this.identityPicker.shadowRoot.querySelector(`#ip-name-form-${this.uniqueId}`);
         return {
             firstName: nameForm.querySelector('input[name="firstName"]').value,
             lastName: nameForm.querySelector('input[name="lastName"]').value,

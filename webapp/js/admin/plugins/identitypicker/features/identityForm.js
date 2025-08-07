@@ -458,18 +458,19 @@ validatePivotCertificationConsistency(pivotAttributes, form) {
     }
 
     initializeChoices() {
-        document.querySelectorAll('.ip-select').forEach(select => {
+        this.identityPicker.shadowRoot.querySelectorAll('.ip-select').forEach(select => {
             new Choices(select, {
                 searchEnabled: false,
                 itemSelectText: '',
                 shouldSort: false,
                 placeholder: true,
+                shadowRoot: this.identityPicker.shadowRoot,
             });
         });
     }
 
     initBirthcountrySelect() {
-        const birthcountrySelect = document.querySelector('.ip-birthcountry-select');
+        const birthcountrySelect = this.identityPicker.shadowRoot.querySelector('.ip-birthcountry-select');
         if (birthcountrySelect) {
             this.birthcountryChoices = new Choices(birthcountrySelect, {
                 searchEnabled: true,
@@ -478,6 +479,7 @@ validatePivotCertificationConsistency(pivotAttributes, form) {
                 placeholderValue: this.identityPicker.rules.language.selectCountry,
                 searchPlaceholderValue: this.identityPicker.rules.language.searchCountry,
                 shouldSort: false,
+                shadowRoot: this.identityPicker.shadowRoot,
                 noResultsText: this.identityPicker.rules.language.noCountryResults,
                 noChoicesText: this.identityPicker.rules.language.noCountryAvailable,
                 loadingText: this.identityPicker.rules.language.loadingCountries,
@@ -603,6 +605,7 @@ validatePivotCertificationConsistency(pivotAttributes, form) {
                 noResultsText: this.identityPicker.rules.language.noCityResults,
                 noChoicesText: this.identityPicker.rules.language.noCityAvailable,
                 loadingText: this.identityPicker.rules.language.loadingCities,
+                shadowRoot: this.identityPicker.shadowRoot,
             });
 
             this.birthplaceChoices.passedElement.element.addEventListener(
