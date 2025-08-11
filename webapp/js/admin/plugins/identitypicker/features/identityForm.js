@@ -553,7 +553,7 @@ export default class IdentityForm {
                 if (data.status === 'OK' && data.result) {
                     const choices = data.result.map(item => ({
                         value: item.code,
-                        label: item.value,
+                        label: item.displayValue || `${item.value}${item.codeZone ? ` (${item.codeZone})` : ''}`,
                     }));
                     choicesInstance.setChoices(choices, 'value', 'label', true);
                 } else {
