@@ -368,8 +368,12 @@ export default class IdentityPicker {
     showDetailsView(custumerId, previousView, messageType, message, description) {
         this.closeSideContainer();
         this.transitionView(this.detailsContainer);
-        this.backButton.style.display = 'inline';
-        this.backButton.onclick = () => this.showView(previousView, custumerId);
+        if (this.permissions.search && previousView !== 'none') {
+            this.backButton.style.display = 'inline';
+            this.backButton.onclick = () => this.showView(previousView, custumerId);
+        } else {
+            this.backButton.style.display = 'none';
+        }
         this.modalContent.classList.add('wide-view');
         this.setHeaderTitle(this.rules.language.detailsTitle);
         this.identityView.loadIdentityDetails(custumerId);
@@ -412,14 +416,17 @@ export default class IdentityPicker {
         this.hideInfoMessage();
         this.closeSideContainer();
         this.transitionView(this.identityFormContainer);
-        this.backButton.style.display = 'inline';
-        this.modalContent.classList.add('wide-view');
-        this.backButton.onclick = () => {
-            if (custumerId) {
-                this.showDetailsView(custumerId, 'results');
-            } else {
-                this.showResultsView();
+        if (this.permissions.search) {
+            this.backButton.style.display = 'inline';
+            this.backButton.onclick = () => {
+                if (custumerId) {
+                    this.showDetailsView(custumerId, 'results');
+                } else {
+                    this.showResultsView();
+                }
             }
+        } else {
+            this.backButton.style.display = 'none';
         }
         if (custumerId) {
             this.identityForm.showModifyIdentityForm(custumerId);
@@ -541,7 +548,9 @@ export default class IdentityPicker {
         if (!hasSearchPermission && !hasViewPermission) {
             this.showMessage('noPermissions', 'error');
         } else if (hasViewPermission && modalCuid) {
-            this.showDetailsView(modalCuid, 'search');
+            // If search is disabled, don't provide a way back to search
+            const previousView = hasSearchPermission ? 'search' : 'none';
+            this.showDetailsView(modalCuid, previousView);
         } else if (hasViewPermission && !modalCuid && !hasSearchPermission) {
             this.showMessage('noCuid', 'error');
         } else {
