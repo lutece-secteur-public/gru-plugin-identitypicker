@@ -419,5 +419,23 @@ export default class IdentitySearch {
         };
     }
 
+    /**
+     * Resets all search forms to their initial state.
+     * @returns {void}
+     */
+    resetForms() {
+        if (this.emailForm) {
+            this.emailForm.reset();
+        }
+        if (this.nameForm) {
+            this.nameForm.reset();
+        }
+        const searchContainer = this.identityPicker.searchContainer;
+        const nameRadio = searchContainer.querySelector('input[name="searchType"][value="name"]');
+        if (nameRadio) {
+            nameRadio.checked = true;
+            this.toggleSearchForm('name');
+        }
+    }
 
 }

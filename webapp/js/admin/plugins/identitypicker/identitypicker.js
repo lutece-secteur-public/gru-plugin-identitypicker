@@ -559,6 +559,7 @@ export default class IdentityPicker {
      * @returns {void}
      */
     closeModal() {
+        this.resetSearchForms();
         this.modal.classList.remove('ip-modal-open');
         this.modal.classList.add('ip-modal-closing');
         setTimeout(() => {
@@ -566,6 +567,22 @@ export default class IdentityPicker {
             this.modal.style.display = 'none';
             this.modal.classList.remove('ip-modal-closing');
         }, 300);
+    }
+
+    /**
+     * Resets all search forms to their initial state.
+     * @returns {void}
+     */
+    resetSearchForms() {
+        if (this.identitySearch) {
+            this.identitySearch.resetForms();
+        }
+        this.showSearchView();
+        this.resultsContainer.innerHTML = '';
+        this.detailsContainer.innerHTML = '';
+        this.identityFormContainer.innerHTML = '';
+        this.compareContainer.innerHTML = '';
+        this.removeMessage();
     }
 
     /**
