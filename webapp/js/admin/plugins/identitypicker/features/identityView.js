@@ -96,7 +96,7 @@ export default class IdentityView {
         return `
             <div class="ip-container-header">
                 <div>
-                    <h3 class="ip-truncate">${firstName} ${lastName}${preferredUsername ? ` (${preferredUsername})` : ''}</h3>
+                    <h3 class="ip-truncate">${firstName} ${lastName}${preferredUsername ? ` (<i>${preferredUsername.toUpperCase()}</i>)` : ''}</h3>
                     <p class="ip-truncate ip-description">${identity.customer_id}</p>
                     ${showValidateEmailButton ? `<button class="ip-validate-email-btn ip-button-mini ip-button-yellow">⚠️ ${this.identityPicker.rules.language.validateEmailButton}</button>` : ''}
                 </div>
@@ -114,10 +114,10 @@ export default class IdentityView {
                     <strong>${this.identityPicker.rules.language.lastUpdateDate}</strong> ${formatDate(identity.last_update_date)}
                 </span>
                 <span class="ip-info-tag ${identity.mon_paris_active ? 'ip-tag-success' : 'ip-tag-error'}">
-                    <strong>${this.identityPicker.rules.language.monParisAccount}</strong> ${identity.mon_paris_active ? this.identityPicker.rules.language.active : ` ${showCreateAccountButton ? `<button class="ip-create-account-btn ip-button-mini ip-button-red">${this.identityPicker.rules.language.createAccountButton}</button>` : this.identityPicker.rules.language.inactive}`}
+                    <strong>${this.identityPicker.rules.language.monParisAccount ? this.identityPicker.rules.language.monParisAccount.replace('Mon Paris', 'MonParis') : 'Compte MonParis'}</strong> ${identity.mon_paris_active ? 'Oui' : (identity.expiration && identity.expiration.delete_date ? 'Non (Supprimé)' : 'Non')} ${!identity.mon_paris_active && showCreateAccountButton ? `<button class="ip-create-account-btn ip-button-mini ip-button-red">${this.identityPicker.rules.language.createAccountButton}</button>` : ''}
                 </span>
                 <span class="ip-info-tag ${this.getCoverageClass(identity.quality.coverage)}">
-                    <strong>${this.identityPicker.rules.language.coverage}</strong> ${identity.quality.coverage === 1 ? this.identityPicker.rules.language.complete : this.identityPicker.rules.language.incomplete}
+                    <strong>${this.identityPicker.rules.language.coverage}</strong> ${identity.quality.coverage === 1 ? 'Informations Complètes' : 'Informations à compléter'}
                 </span>
             </div>`;
     }
@@ -152,7 +152,10 @@ export default class IdentityView {
                     </tr>`;
                 attrs.forEach(attr => {
                     const certInfo = getCertificationInfo(attr.key, attr.certification, this.identityPicker.rules.referential, this.identityPicker.rules.language);
-                    const displayValue = getDisplayValue(attr.key, attr.value, this.identityPicker.rules.referential);
+                    let displayValue = getDisplayValue(attr.key, attr.value, this.identityPicker.rules.referential);                    
+                    if (attr.key === 'preferred_username' && displayValue) {
+                        displayValue = `<i>${displayValue.toUpperCase()}</i>`;
+                    }
                     tableHTML += `
                         <tr>
                             <td>${attr.name}</td>
@@ -164,6 +167,39 @@ export default class IdentityView {
                 });
             }
         }
+        
+        tableHTML += `
+                    <tr class="ip-group-separator">
+                        <td class="ip-table-separator" colspan="3">Informations complémentaires</td>
+                    </tr>`;
+        
+        if (identity.expiration && identity.expiration.delete_date) {
+            tableHTML += `
+                        <tr>
+                            <td>Date de demande suppression</td>
+                            <td><strong>${formatDate(identity.expiration.delete_date)}</strong></td>
+                            <td></td>
+                        </tr>`;
+        }
+        
+        if (identity.quality && identity.quality.scoring !== undefined) {
+            tableHTML += `
+                        <tr>
+                            <td>Score</td>
+                            <td><strong>${identity.quality.scoring}</strong></td>
+                            <td></td>
+                        </tr>`;
+        }
+        
+        if (identity.quality && identity.quality.quality !== undefined) {
+            tableHTML += `
+                        <tr>
+                            <td>Qualité</td>
+                            <td><strong>${Math.round(identity.quality.quality * 100)}%</strong></td>
+                            <td></td>
+                        </tr>`;
+        }
+        
         tableHTML += `
                 </tbody>
             </table>`;
