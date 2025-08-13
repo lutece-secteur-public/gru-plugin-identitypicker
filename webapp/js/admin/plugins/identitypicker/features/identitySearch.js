@@ -38,7 +38,7 @@ export default class IdentitySearch {
                     <input id="ip-email-input-${this.uniqueId}" type="email" name="email" required>
                 </div>
                 <div class="ip-container-buttons">
-                    <button class="ip-button-light" type="button">${this.identityPicker.rules.language.closeButton}</button>
+                    <button class="ip-button-light ip-button-close" type="button">${this.identityPicker.rules.language.closeButton}</button>
                     <button type="submit">${searchIcon} ${this.identityPicker.rules.language.searchButton}</button>
                 </div>
             </form>
@@ -64,7 +64,7 @@ export default class IdentitySearch {
 
         this.emailForm = searchContainer.querySelector(`#ip-email-form-${this.uniqueId}`);
         this.nameForm = searchContainer.querySelector(`#ip-name-form-${this.uniqueId}`);
-        this.closeBtn = searchContainer.querySelector('.ip-button-close');
+        this.closeBtns = searchContainer.querySelectorAll('.ip-button-close');
 
         await this.setupSearchForms();
         await this.setupResultsClickHandler();
@@ -92,7 +92,9 @@ export default class IdentitySearch {
             this.performSearch(new FormData(this.nameForm), 'name');
         });
 
-        this.closeBtn.addEventListener('click', () => this.identityPicker.closeModal());
+        this.closeBtns.forEach(btn => {
+            btn.addEventListener('click', () => this.identityPicker.closeModal());
+        });
     }
 
     /**
