@@ -72,7 +72,9 @@ export default class IdentityHistory {
     mergeHistoryData(identityHistory, tasksData) {
         const allEvents = [];
         const language = this.identityPicker.rules.language;
-        identityHistory.identity_changes.forEach(change => {
+        
+        if (identityHistory && identityHistory.identity_changes) {
+            identityHistory.identity_changes.forEach(change => {
             const changeTypeText = language.history[change.changeType.toLowerCase()]?.[change.changeStatus.toLowerCase()] || '';
             const authorName = change.author?.author_name || language.unknown;
             const changeMessage = change.changeMessage || '';
@@ -87,7 +89,10 @@ export default class IdentityHistory {
                 searchableText: `${formattedDate} ${changeTypeText} ${authorName} ${changeMessage}`
             });
         });
-        identityHistory.attribute_histories.forEach(attrHistory => {
+        }
+        
+        if (identityHistory && identityHistory.attribute_histories) {
+            identityHistory.attribute_histories.forEach(attrHistory => {
             const attributeInfo = getAttributeInfo(attrHistory.attribute_key, this.identityPicker.rules.referential);
             const attributeLabel = attributeInfo?.label || '';
             attrHistory.attribute_changes.forEach(change => {
@@ -111,7 +116,10 @@ export default class IdentityHistory {
                 });
             });
         });
-        tasksData.forEach(task => {
+        }
+        
+        if (tasksData && Array.isArray(tasksData) && tasksData.length > 0) {
+            tasksData.forEach(task => {
             task.task_history.forEach(change => {
                 const taskLanguage = language.tasks;
                 const taskTypeText = this.getTaskTypeText(task.task_type, taskLanguage);
@@ -134,6 +142,8 @@ export default class IdentityHistory {
                 });
             });
         });
+        }
+        
         allEvents.sort((a, b) => b.date - a.date);
         return allEvents;
     }

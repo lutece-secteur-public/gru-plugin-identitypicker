@@ -114,7 +114,7 @@ export default class IdentityView {
                     <strong>${this.identityPicker.rules.language.lastUpdateDate}</strong> ${formatDate(identity.last_update_date)}
                 </span>
                 <span class="ip-info-tag ${identity.mon_paris_active ? 'ip-tag-success' : 'ip-tag-error'}">
-                    <strong>${this.identityPicker.rules.language.monParisAccount ? this.identityPicker.rules.language.monParisAccount.replace('Mon Paris', 'MonParis') : 'Compte MonParis'}</strong> ${identity.mon_paris_active ? 'Oui' : (identity.expiration && identity.expiration.delete_date ? 'Non (Supprimé)' : 'Non')} ${!identity.mon_paris_active && showCreateAccountButton ? `<button class="ip-create-account-btn ip-button-mini ip-button-red">${this.identityPicker.rules.language.createAccountButton}</button>` : ''}
+                    <strong>${this.identityPicker.rules.language.monParisAccount}</strong> ${identity.mon_paris_active ? this.identityPicker.rules.language.active : (identity.expiration && identity.expiration.delete_date ? `${this.identityPicker.rules.language.inactive} (Supprimé)` : this.identityPicker.rules.language.inactive)} ${!identity.mon_paris_active && showCreateAccountButton ? `<button class="ip-create-account-btn ip-button-mini ip-button-red">${this.identityPicker.rules.language.createAccountButton}</button>` : ''}
                 </span>
                 <span class="ip-info-tag ${this.getCoverageClass(identity.quality.coverage)}">
                     <strong>${this.identityPicker.rules.language.coverage}</strong> ${identity.quality.coverage === 1 ? 'Informations Complètes' : 'Informations à compléter'}

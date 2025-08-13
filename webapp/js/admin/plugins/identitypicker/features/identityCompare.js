@@ -146,12 +146,12 @@ export default class IdentityCompare {
     createMonParisRow() {
         const cells = this.identities.map(identity => {
             const isActive = identity.mon_paris_active;
-            const text = isActive ? this.identityPicker.rules.language.active || "Oui" : this.identityPicker.rules.language.inactive || "Non";
+            const text = isActive ? this.identityPicker.rules.language.active : (identity.expiration && identity.expiration.delete_date ? `${this.identityPicker.rules.language.inactive} (Supprimé)` : this.identityPicker.rules.language.inactive);
             const className = isActive ? 'ip-active' : 'ip-inactive';
             return `<td class="${className}">${text}</td>`;
         }).join('');
         return `<tr>
-            <td>${this.identityPicker.rules.language.monParisAccount || "Identité rattachée à un compte MonParis"}</td>
+            <td>${this.identityPicker.rules.language.monParisAccount}</td>
             ${cells}
         </tr>`;
     }

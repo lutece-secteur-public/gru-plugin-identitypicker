@@ -223,10 +223,24 @@ public class IdentityRestService {
             return Response.status(Response.Status.FORBIDDEN).entity(IdentityRestConstants.ERROR_UNAUTHORIZED).build();
         }
         
-        Optional<IdentityHistory> history = IdentityPickerService.getInstance().getIdentityHistory(customerId, AdminUserService.getAdminUser(request));
-        return history.map(Response::ok)
-                      .orElse(Response.status(Response.Status.NOT_FOUND))
-                      .build();
+        try {
+            Optional<IdentityHistory> history = IdentityPickerService.getInstance().getIdentityHistory(customerId, AdminUserService.getAdminUser(request));
+            
+            if (history.isPresent()) {
+                IdentityHistory historyData = history.get();
+                return Response.ok(historyData).build();
+            } else {
+                Map<String, Object> emptyHistory = new HashMap<>();
+                emptyHistory.put("identity_changes", new java.util.ArrayList<>());
+                emptyHistory.put("attribute_histories", new java.util.ArrayList<>());
+                return Response.ok(emptyHistory).build();
+            }
+        } catch (Exception e) {
+            AppLogService.error("Error processing history for customer " + customerId, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("Error processing history: " + e.getMessage())
+                           .build();
+        }
     }
 
     @GET
@@ -237,10 +251,21 @@ public class IdentityRestService {
             return Response.status(Response.Status.FORBIDDEN).entity(IdentityRestConstants.ERROR_UNAUTHORIZED).build();
         }
         
-        Optional<List<IdentityTaskDto>> tasks = IdentityPickerService.getInstance().getIdentityTasks(customerId, AdminUserService.getAdminUser(request));
-        return tasks.map(Response::ok)
-                    .orElse(Response.status(Response.Status.NOT_FOUND))
-                    .build();
+        try {
+            Optional<List<IdentityTaskDto>> tasks = IdentityPickerService.getInstance().getIdentityTasks(customerId, AdminUserService.getAdminUser(request));
+            
+            if (tasks.isPresent()) {
+                List<IdentityTaskDto> tasksData = tasks.get();
+                return Response.ok(tasksData).build();
+            } else {
+                return Response.ok(new java.util.ArrayList<>()).build();
+            }
+        } catch (Exception e) {
+            AppLogService.error("Error processing tasks for customer " + customerId, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("Error processing tasks: " + e.getMessage())
+                           .build();
+        }
     }
 
     @POST

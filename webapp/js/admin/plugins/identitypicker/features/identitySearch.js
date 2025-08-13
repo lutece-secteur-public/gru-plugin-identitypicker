@@ -300,7 +300,7 @@ export default class IdentitySearch {
         
         const monParisBadge = `
             <span class="ip-info-tag ${result.mon_paris_active ? 'ip-tag-success' : 'ip-tag-error'}">
-                <strong>Mon Paris</strong> ${result.mon_paris_active ? 'Actif' : 'Inactif'}
+                <strong>${this.identityPicker.rules.language.monParisAccount}</strong> ${result.mon_paris_active ? this.identityPicker.rules.language.active : (result.expiration && result.expiration.delete_date ? `${this.identityPicker.rules.language.inactive} (Supprimé)` : this.identityPicker.rules.language.inactive)}
             </span>
         `;
         
