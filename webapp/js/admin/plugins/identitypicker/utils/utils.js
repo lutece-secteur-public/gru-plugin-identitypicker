@@ -49,6 +49,20 @@ export function getAttributeInfo(key, referential) {
 }
 
 /**
+ * Gets the CSS class based on percentage value for quality metrics.
+ * @param {number|string} percentage - The percentage value (0-100)
+ * @returns {string} CSS class name for styling
+ * @example
+ * const className = getPercentageClass(85); // Returns: 'ip-percentage-high'
+ */
+export function getPercentageClass(percentage) {
+    const percentValue = parseFloat(percentage);
+    if (percentValue >= 80) return 'ip-percentage-high';
+    if (percentValue >= 30) return 'ip-percentage-medium';
+    return 'ip-percentage-low';
+}
+
+/**
  * Gets certification information for an attribute.
  * @param {string} attributeKey - The attribute key
  * @param {string} certificationProcess - The certification process code

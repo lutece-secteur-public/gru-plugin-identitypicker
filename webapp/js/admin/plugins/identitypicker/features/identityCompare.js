@@ -1,4 +1,4 @@
-import { formatDate, getAttributeInfo, getDisplayValue, normalizeString, toTitleCase } from '../utils/utils';
+import { formatDate, getAttributeInfo, getDisplayValue, normalizeString, toTitleCase, getPercentageClass } from '../utils/utils';
 
 export default class IdentityCompare {
     /**
@@ -132,7 +132,13 @@ export default class IdentityCompare {
         if (certificationTexts.every(text => text === "")) {
             return "";
         }
-        const cells = certificationTexts.map(text => `<td>${text}</td>`).join('');
+        const referenceText = certificationTexts[0];
+        const cells = certificationTexts.map((text, index) => {
+            if (index > 0 && text !== referenceText) {
+                return `<td><span class="ip-approximate">${text}</span></td>`;
+            }
+            return `<td>${text}</td>`;
+        }).join('');
         return `<tr>
             <td>${this.identityPicker.rules.language.certificationLevel || "Niveau de certification"}</td>
             ${cells}
@@ -211,25 +217,25 @@ export default class IdentityCompare {
             this.identityPicker.rules.language.qualityScore || "Score",
             this.identities.map(identity => {
                 const scoringValue = (identity.quality.scoring * 100).toFixed(2);
-                const className = this.getPercentageClass(scoringValue);
+                const className = getPercentageClass(scoringValue);
                 return { value: `${scoringValue}%`, className };
-            })
-        );
-        rows += this.createRow(
-            this.identityPicker.rules.language.coverageLabel || "Couverture",
-            this.identities.map(identity => {
-                const coverageValue = (identity.quality.coverage * 100).toFixed(2);
-                const className = this.getPercentageClass(coverageValue);
-                const displayText = coverageValue >= 100 ? (this.identityPicker.rules.language.completeInformation || "Informations Complètes") : (this.identityPicker.rules.language.incompleteInformation || "Informations à compléter");
-                return { value: displayText, className };
             })
         );
         rows += this.createRow(
             this.identityPicker.rules.language.qualityLabel || "Qualité",
             this.identities.map(identity => {
                 const qualityValue = (identity.quality.quality * 100).toFixed(2);
-                const className = this.getPercentageClass(qualityValue);
+                const className = getPercentageClass(qualityValue);
                 return { value: `${qualityValue}%`, className };
+            })
+        );
+        rows += this.createRow(
+            this.identityPicker.rules.language.coverageLabel || "Couverture",
+            this.identities.map(identity => {
+                const coverageValue = (identity.quality.coverage * 100).toFixed(2);
+                const className = getPercentageClass(coverageValue);
+                const displayText = coverageValue >= 100 ? (this.identityPicker.rules.language.completeInformation || "Informations Complètes") : (this.identityPicker.rules.language.incompleteInformation || "Informations à compléter");
+                return { value: displayText, className };
             })
         );
         return rows;
@@ -245,15 +251,15 @@ export default class IdentityCompare {
         const referenceIdentity = this.identities[0];
         attributeDefinitions.forEach(attrDef => {
             const referenceValue = this.getAttrValue(referenceIdentity, attrDef.key);
+            const referenceFormatted = attrDef.formatter ? attrDef.formatter(referenceValue || '') : referenceValue;
             const cells = this.identities.map((identity, index) => {
                 let value = this.getAttrValue(identity, attrDef.key);
-                if (attrDef.formatter && value) {
-                    value = attrDef.formatter(value);
+                let formattedValue = attrDef.formatter ? attrDef.formatter(value || '') : value;
+                const isDifferent = index > 0 && formattedValue !== referenceFormatted;
+                if (isDifferent) {
+                    return `<td><span class="ip-approximate">${formattedValue || ''}</span></td>`;
                 }
-                if (index > 0 && normalizeString(value) !== normalizeString(referenceValue)) {
-                    return `<td class="ip-difference">${value || ''}</td>`;
-                }
-                return `<td>${value || ''}</td>`;
+                return `<td>${formattedValue || ''}</td>`;
             }).join('');
             rows += `<tr>
                 <td>${attrDef.label}</td>
@@ -270,7 +276,7 @@ export default class IdentityCompare {
      * @returns {string} HTML string for the row
      */
     createRow(label, values) {
-        const cells = Array.isArray(values) ? values.map(val => {
+        const cells = Array.isArray(values) ? values.map((val, index) => {
             if (typeof val === 'object') {
                 return `<td class="${val.className || ''}">${val.value || ''}</td>`;
             }
@@ -305,19 +311,6 @@ export default class IdentityCompare {
         return attr ? getDisplayValue(key, attr.value, this.identityPicker.rules.referential) : '';
     }
 
-
-
-    /**
-     * Gets the CSS class based on percentage value.
-     * @param {number|string} percentage - The percentage value
-     * @returns {string} CSS class name for styling
-     */
-    getPercentageClass(percentage) {
-        const percentValue = parseFloat(percentage);
-        if (percentValue >= 80) return 'ip-percentage-high';
-        if (percentValue >= 50) return 'ip-percentage-medium';
-        return 'ip-percentage-low';
-    }
 
 
 }

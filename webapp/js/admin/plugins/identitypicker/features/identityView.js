@@ -1,4 +1,4 @@
-import { getAttributeValue, formatDate, getAttributeInfo, getCertificationInfo, getDisplayValue } from '../utils/utils';
+import { getAttributeValue, formatDate, getAttributeInfo, getCertificationInfo, getDisplayValue, getPercentageClass } from '../utils/utils';
 
 export default class IdentityView {
     /**
@@ -183,19 +183,23 @@ export default class IdentityView {
         }
         
         if (identity.quality && identity.quality.scoring !== undefined) {
+            const scoringPercentage = (identity.quality.scoring * 100).toFixed(2);
+            const scoringClass = getPercentageClass(scoringPercentage);
             tableHTML += `
                         <tr>
                             <td>Score</td>
-                            <td><strong>${identity.quality.scoring}</strong></td>
+                            <td class="${scoringClass}"><strong>${scoringPercentage}%</strong></td>
                             <td></td>
                         </tr>`;
         }
         
         if (identity.quality && identity.quality.quality !== undefined) {
+            const qualityPercentage = (identity.quality.quality * 100).toFixed(2);
+            const qualityClass = getPercentageClass(qualityPercentage);
             tableHTML += `
                         <tr>
                             <td>Qualité</td>
-                            <td><strong>${Math.round(identity.quality.quality * 100)}%</strong></td>
+                            <td class="${qualityClass}"><strong>${qualityPercentage}%</strong></td>
                             <td></td>
                         </tr>`;
         }
