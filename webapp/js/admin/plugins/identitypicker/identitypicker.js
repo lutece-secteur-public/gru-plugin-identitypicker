@@ -61,7 +61,7 @@ export default class IdentityPicker {
                 await this.fetchRules();
             } catch (error) {
                 console.error('Failed to fetch rules:', error);
-                this.openButton.textContent = 'Referential ' + error;
+                this.openButton.textContent = error;
                 this.openButton.disabled = true;
                 return;
             }
@@ -95,7 +95,7 @@ export default class IdentityPicker {
         try {
             const response = await fetch(this.config.endpoints.permissions);
             if (!response.ok) {
-                throw new Error(`HTTP error ${response.status}`);
+                throw new Error(`Erreur HTTP ${response.status}`);
             }
             const permissions = await response.json();
             this.permissions = {
@@ -120,9 +120,12 @@ export default class IdentityPicker {
         try {
             const response = await fetch(this.config.endpoints.rules);
             if (!response.ok) {
-                throw new Error(`HTTP error ${response.status}`);
+                throw new Error(`Erreur HTTP ${response.status}`);
             }
             this.rules = await response.json();
+            if (!this.rules.contract) {
+                throw new Error('Le contrat est null ou indisponible');
+            }
         } catch (error) {
             console.error('Failed to fetch rules:', error);
             throw error;
