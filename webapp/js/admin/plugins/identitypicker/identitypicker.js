@@ -568,13 +568,16 @@ export default class IdentityPicker {
      * @returns {void}
      */
     closeModal() {
-        this.resetSearchForms();
         this.modal.classList.remove('ip-modal-open');
         this.modal.classList.add('ip-modal-closing');
         setTimeout(() => {
             document.body.style.overflow = '';
             this.modal.style.display = 'none';
             this.modal.classList.remove('ip-modal-closing');
+            // Reset forms after modal is fully closed
+            setTimeout(() => {
+                this.resetSearchForms();
+            }, 200);
         }, 300);
     }
 
