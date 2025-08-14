@@ -140,7 +140,7 @@ export default class IdentityCompare {
             return `<td>${text}</td>`;
         }).join('');
         return `<tr>
-            <td>${this.identityPicker.rules.language.certificationLevel || "Niveau de certification"}</td>
+            <td>${this.identityPicker.rules.language['certificationLevel'] || "Niveau de certification"}</td>
             ${cells}
         </tr>`;
     }
@@ -152,12 +152,12 @@ export default class IdentityCompare {
     createMonParisRow() {
         const cells = this.identities.map(identity => {
             const isActive = identity.mon_paris_active;
-            const text = isActive ? this.identityPicker.rules.language.active : (identity.expiration && identity.expiration.delete_date ? `${this.identityPicker.rules.language.inactive} (Supprimé)` : this.identityPicker.rules.language.inactive);
+            const text = isActive ? this.identityPicker.rules.language['active'] : (identity.expiration && identity.expiration.delete_date ? `${this.identityPicker.rules.language['inactive']} (Supprimé)` : this.identityPicker.rules.language['inactive']);
             const className = isActive ? 'ip-active' : 'ip-inactive';
             return `<td class="${className}">${text}</td>`;
         }).join('');
         return `<tr>
-            <td>${this.identityPicker.rules.language.monParisAccount}</td>
+            <td>${this.identityPicker.rules.language['monParisAccount']}</td>
             ${cells}
         </tr>`;
     }
@@ -168,15 +168,15 @@ export default class IdentityCompare {
      */
     createIdentityInfoRows() {
         const identityAttributes = [
-            { key: 'gender', label: this.identityPicker.rules.language.gender || "Sexe", formatter: this.formatGender.bind(this) },
-            { key: 'family_name', label: this.identityPicker.rules.language.familyName || "Nom de naissance", formatter: value => value.toUpperCase() },
-            { key: 'preferred_username', label: this.identityPicker.rules.language.preferredUsername || "Nom d'usage", formatter: value => `<i>${value.toUpperCase()}</i>` },
-            { key: 'first_name', label: this.identityPicker.rules.language.firstName || "Prénoms", formatter: toTitleCase },
-            { key: 'birthdate', label: this.identityPicker.rules.language.birthdate || "Date de naissance" },
-            { key: 'birthcountry', label: this.identityPicker.rules.language.birthcountry || "Pays de naissance" },
-            { key: 'birthcountry_code', label: this.identityPicker.rules.language.birthcountryCode || "Code INSEE pays" },
-            { key: 'birthplace', label: this.identityPicker.rules.language.birthplace || "Commune de naissance" },
-            { key: 'birthplace_code', label: this.identityPicker.rules.language.birthplaceCode || "Code INSEE commune" }
+            { key: 'gender', label: this.identityPicker.rules.language['gender'] || "Sexe", formatter: this.formatGender.bind(this) },
+            { key: 'family_name', label: this.identityPicker.rules.language['familyName'] || "Nom de naissance", formatter: value => value.toUpperCase() },
+            { key: 'preferred_username', label: this.identityPicker.rules.language['preferredUsername'] || "Nom d'usage", formatter: value => `<i>${value.toUpperCase()}</i>` },
+            { key: 'first_name', label: this.identityPicker.rules.language['firstName'] || "Prénoms", formatter: toTitleCase },
+            { key: 'birthdate', label: this.identityPicker.rules.language['birthdate'] || "Date de naissance" },
+            { key: 'birthcountry', label: this.identityPicker.rules.language['birthcountry'] || "Pays de naissance" },
+            { key: 'birthcountry_code', label: this.identityPicker.rules.language['birthcountryCode'] || "Code INSEE pays" },
+            { key: 'birthplace', label: this.identityPicker.rules.language['birthplace'] || "Commune de naissance" },
+            { key: 'birthplace_code', label: this.identityPicker.rules.language['birthplaceCode'] || "Code INSEE commune" }
         ];
         return this.createAttributeRows(identityAttributes);
     }
@@ -187,14 +187,14 @@ export default class IdentityCompare {
      */
     createContactInfoRows() {
         const contactAttributes = [
-            { key: 'email', label: this.identityPicker.rules.language.email || "Email de contact" },
-            { key: 'login', label: this.identityPicker.rules.language.login || "Login" },
-            { key: 'mobile_phone', label: this.identityPicker.rules.language.mobilePhone || "Téléphone portable" },
-            { key: 'fixed_phone', label: this.identityPicker.rules.language.fixedPhone || "Téléphone fixe" },
-            { key: 'address', label: this.identityPicker.rules.language.address || "Adresse" },
-            { key: 'address_detail', label: this.identityPicker.rules.language.addressDetail || "Complément d'adresse" },
-            { key: 'address_postal_code', label: this.identityPicker.rules.language.postalCode || "Code postal" },
-            { key: 'address_city', label: this.identityPicker.rules.language.city || "Ville" }
+            { key: 'email', label: this.identityPicker.rules.language['email'] || "Email de contact" },
+            { key: 'login', label: this.identityPicker.rules.language['login'] || "Login" },
+            { key: 'mobile_phone', label: this.identityPicker.rules.language['mobilePhone'] || "Téléphone portable" },
+            { key: 'fixed_phone', label: this.identityPicker.rules.language['fixedPhone'] || "Téléphone fixe" },
+            { key: 'address', label: this.identityPicker.rules.language['address'] || "Adresse" },
+            { key: 'address_detail', label: this.identityPicker.rules.language['addressDetail'] || "Complément d'adresse" },
+            { key: 'address_postal_code', label: this.identityPicker.rules.language['postalCode'] || "Code postal" },
+            { key: 'address_city', label: this.identityPicker.rules.language['city'] || "Ville" }
         ];
         return this.createAttributeRows(contactAttributes);
     }
@@ -206,15 +206,15 @@ export default class IdentityCompare {
     createAdditionalInfoRows() {
         let rows = '';
         rows += this.createRow(
-            this.identityPicker.rules.language.creationDate || "Date de Création",
+            this.identityPicker.rules.language['creationDate'] || "Date de Création",
             this.identities.map(identity => formatDate(identity.creation_date))
         );
         rows += this.createRow(
-            this.identityPicker.rules.language.lastUpdateDate || "Date de Modification",
+            this.identityPicker.rules.language['lastUpdateDate'] || "Date de Modification",
             this.identities.map(identity => formatDate(identity.last_update_date))
         );
         rows += this.createRow(
-            this.identityPicker.rules.language.qualityScore || "Score",
+            this.identityPicker.rules.language['qualityScore'] || "Score",
             this.identities.map(identity => {
                 const scoringValue = (identity.quality.scoring * 100).toFixed(2);
                 const className = getPercentageClass(scoringValue);
@@ -222,7 +222,7 @@ export default class IdentityCompare {
             })
         );
         rows += this.createRow(
-            this.identityPicker.rules.language.qualityLabel || "Qualité",
+            this.identityPicker.rules.language['qualityLabel'] || "Qualité",
             this.identities.map(identity => {
                 const qualityValue = (identity.quality.quality * 100).toFixed(2);
                 const className = getPercentageClass(qualityValue);
@@ -230,11 +230,11 @@ export default class IdentityCompare {
             })
         );
         rows += this.createRow(
-            this.identityPicker.rules.language.coverageLabel || "Couverture",
+            this.identityPicker.rules.language['coverageLabel'] || "Couverture",
             this.identities.map(identity => {
                 const coverageValue = (identity.quality.coverage * 100).toFixed(2);
                 const className = getPercentageClass(coverageValue);
-                const displayText = coverageValue >= 100 ? (this.identityPicker.rules.language.completeInformation || "Informations Complètes") : (this.identityPicker.rules.language.incompleteInformation || "Informations à compléter");
+                const displayText = coverageValue >= 100 ? (this.identityPicker.rules.language['completeInformation'] || "Informations Complètes") : (this.identityPicker.rules.language['incompleteInformation'] || "Informations à compléter");
                 return { value: displayText, className };
             })
         );

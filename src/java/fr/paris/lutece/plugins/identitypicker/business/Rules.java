@@ -8,10 +8,10 @@ public class Rules
 {
     Referential referential;
     ServiceContractDto contract;
-    Map<String, Object> language;
+    Map<String, String> language;
 
 
-    public Rules( Referential referential, ServiceContractDto contract, Map<String, Object> language )
+    public Rules( Referential referential, ServiceContractDto contract, Map<String, String> language )
     {
         this.referential = referential;
         this.contract = contract;
@@ -28,7 +28,7 @@ public class Rules
         return contract;
     }
 
-    public Map<String, Object> getLanguage( )
+    public Map<String, String> getLanguage( )
     {
         return language;
     }

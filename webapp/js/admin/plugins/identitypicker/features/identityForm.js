@@ -19,7 +19,7 @@ export default class IdentityForm {
      * @returns {Promise<void>}
      */
     async showCreateIdentityForm() {
-        this.identityPicker.showLoading(this.identityPicker.rules.language.loading);
+        this.identityPicker.showLoading(this.identityPicker.rules.language['loading']);
         this.identity = null;
         await this.displayForm('create');
         this.identityPicker.hideLoading();
@@ -31,7 +31,7 @@ export default class IdentityForm {
      * @returns {Promise<void>}
      */
     async showModifyIdentityForm(customerId) {
-        this.identityPicker.showLoading(this.identityPicker.rules.language.loading);
+        this.identityPicker.showLoading(this.identityPicker.rules.language['loading']);
         const identityUrl = `${this.identityPicker.config.endpoints.identity}/${customerId}`;
         try {
             const identityResponse = await fetch(identityUrl);
@@ -41,13 +41,13 @@ export default class IdentityForm {
             this.identity = await identityResponse.json();
             this.displayForm('modify');
         } catch (error) {
-            console.error(this.identityPicker.rules.language.fetchError, error);
+            console.error(this.identityPicker.rules.language['fetchError'], error);
             let errorMessage;
             if (error instanceof Response) {
                 if (error.status === 403) {
-                    errorMessage = `${this.identityPicker.rules.language.httpError} 403`;
+                    errorMessage = `${this.identityPicker.rules.language['httpError']} 403`;
                 } else {
-                    errorMessage = `${this.identityPicker.rules.language.httpError} ${error.status}`;
+                    errorMessage = `${this.identityPicker.rules.language['httpError']} ${error.status}`;
                 }
             } else {
                 errorMessage = error.message;
@@ -76,8 +76,8 @@ export default class IdentityForm {
             formHtml += `</fieldset>`;
         }
         formHtml += `<div class="ip-container-buttons">
-            <button class="ip-button-back ip-button-light" type="button">${this.identityPicker.rules.language.backButton}</button>
-            <button type="submit">${mode === 'create' ? this.identityPicker.rules.language.createButton : this.identityPicker.rules.language.modifyButton}</button>
+            <button class="ip-button-back ip-button-light" type="button">${this.identityPicker.rules.language['backButton']}</button>
+            <button type="submit">${mode === 'create' ? this.identityPicker.rules.language['createButton'] : this.identityPicker.rules.language['modifyButton']}</button>
         </div></form>`;
         this.identityPicker.identityFormContainer.innerHTML = formHtml;
         this.identityPicker.identityFormContainer.querySelector('.ip-button-back').addEventListener('click', () => {
@@ -127,7 +127,7 @@ export default class IdentityForm {
             const currentCertInList = attr.attributeCertifications.find(cert => cert.code === identityAttr.certProcess);
             if (!currentCertInList) {
                 const certInfo = getCertificationInfo(attrKey, identityAttr.certProcess, this.identityPicker.rules.referential, this.identityPicker.rules.language);
-                currentCertOption = `<option value="${identityAttr.certProcess}" selected>${certInfo.label} (${this.identityPicker.rules.language.qualityLabel} ${currentCertLevel})</option>`;
+                currentCertOption = `<option value="${identityAttr.certProcess}" selected>${certInfo.label} (${this.identityPicker.rules.language['qualityLabel']} ${currentCertLevel})</option>`;
             }
         }
         
@@ -139,7 +139,7 @@ export default class IdentityForm {
                 const shouldInclude = certLevel >= currentCertLevel;
                 return shouldInclude;
             })
-            .map(cert => `<option value="${cert.code}" ${identityAttr?.certProcess === cert.code ? 'selected' : ''}>${cert.label} (${this.identityPicker.rules.language.qualityLabel} ${cert.level})</option>`)
+            .map(cert => `<option value="${cert.code}" ${identityAttr?.certProcess === cert.code ? 'selected' : ''}>${cert.label} (${this.identityPicker.rules.language['qualityLabel']} ${cert.level})</option>`)
             .join('');
         return `
             ${attr.keyName === 'birthcountry' ? `<div class="ip-info-message info" id="birthcountry-message" style="display:none">
@@ -150,14 +150,14 @@ export default class IdentityForm {
             </div>` : ''}
             <div class="ip-form-row">
                 <div class="ip-form-input">
-                    <label for="${attr.keyName}">${attr.name} ${attr.attributeRight.mandatory ? `<span class="ip-required">${this.identityPicker.rules.language.mandatory}</span>` : ''}</label>
+                    <label for="${attr.keyName}">${attr.name} ${attr.attributeRight.mandatory ? `<span class="ip-required">${this.identityPicker.rules.language['mandatory']}</span>` : ''}</label>
                     ${this.getInputFieldHtml(attr, value)}
                     <div class="ip-field-error" id="${attr.keyName}-error" style="display: none;"></div>
                 </div>
                 <div class="ip-form-select">
-                    <label for="${attr.keyName}-certification">${this.identityPicker.rules.language.selectCertification} <span class="ip-required" id="${attr.keyName}-cert-required" style="${!value ? 'display: none;' : ''}">${this.identityPicker.rules.language.mandatory}</span></label>
+                    <label for="${attr.keyName}-certification">${this.identityPicker.rules.language['selectCertification']} <span class="ip-required" id="${attr.keyName}-cert-required" style="${!value ? 'display: none;' : ''}">${this.identityPicker.rules.language['mandatory']}</span></label>
                     <select id="${attr.keyName}-certification" name="${attr.keyName}-certification" class="ip-select" ${value ? 'required' : ''} data-initial-cert="${identityAttr?.certProcess || ''}" data-initial-level="${currentCertLevel}">
-                        <option value="" ${!identityAttr?.certProcess ? 'selected' : ''} disabled>${this.identityPicker.rules.language.selectCertification}</option>
+                        <option value="" ${!identityAttr?.certProcess ? 'selected' : ''} disabled>${this.identityPicker.rules.language['selectCertification']}</option>
                         ${currentCertOption}
                         ${certOptions}
                     </select>
@@ -209,7 +209,7 @@ export default class IdentityForm {
             if (attributeKey && attributeKey.values && attributeKey.values.length > 0) {
                 return `
                     <select id="${attr.keyName}" class="ip-select" name="${attr.keyName}" ${attr.attributeRight.mandatory ? 'required' : ''}>
-                        <option value="" ${!value ? 'selected' : ''} disabled>${this.identityPicker.rules.language.selectValue}</option>
+                        <option value="" ${!value ? 'selected' : ''} disabled>${this.identityPicker.rules.language['selectValue']}</option>
                         ${attributeKey.values.map(v => `
                             <option value="${v.value}" ${v.value === value ? 'selected' : ''}>${v.label}</option>
                         `).join('')}
@@ -284,7 +284,7 @@ export default class IdentityForm {
             }
             if (!isValid) {
                 this.identityPicker.showMessage(
-                    this.identityPicker.rules.language.formValidationError || 'Veuillez corriger les erreurs dans le formulaire avant de soumettre',
+                    this.identityPicker.rules.language['formValidationError'] || 'Veuillez corriger les erreurs dans le formulaire avant de soumettre',
                     'error'
                 );
             }
@@ -324,7 +324,7 @@ export default class IdentityForm {
             if (certRequired) certRequired.style.display = 'inline';
             if (!certSelect.value) {
                 if (certError) {
-                    certError.textContent = this.identityPicker.rules.language.certificationRequired || 'La certification est obligatoire';
+                    certError.textContent = this.identityPicker.rules.language['certificationRequired'] || 'La certification est obligatoire';
                     certError.style.display = 'block';
                 }
                 certSelect.classList.add('ip-error-input');
@@ -353,7 +353,7 @@ export default class IdentityForm {
         const isEmpty = !inputField.value || inputField.value.trim() === '';
         if (!isEmpty && !certSelect.value) {
             if (certError) {
-                certError.textContent = this.identityPicker.rules.language.certificationRequired || 'La certification est obligatoire';
+                certError.textContent = this.identityPicker.rules.language['certificationRequired'] || 'La certification est obligatoire';
                 certError.style.display = 'block';
             }
             certSelect.classList.add('ip-error-input');
@@ -364,7 +364,7 @@ export default class IdentityForm {
                 const newLevel = this.getCertificationLevel(attrKey, certSelect.value);
                 if (newLevel < initialLevel) {
                     if (certError) {
-                        certError.textContent = this.identityPicker.rules.language.certificationLowerLevel || `Le niveau de certification doit être supérieur ou égal au niveau actuel (${initialLevel})`;
+                        certError.textContent = this.identityPicker.rules.language['certificationLowerLevel'] || `Le niveau de certification doit être supérieur ou égal au niveau actuel (${initialLevel})`;
                         certError.style.display = 'block';
                     }
                     certSelect.classList.add('ip-error-input');
@@ -405,7 +405,7 @@ export default class IdentityForm {
             const hasInconsistentLevels = filledPivotAttrs.some(key => pivotCertLevels[key] !== highestLevel);
             if (hasInconsistentLevels) {
                 this.identityPicker.showMessage(
-                    this.identityPicker.rules.language.inconsistentCertification || 'Les niveaux de certification des attributs pivots doivent être cohérents (tous du même niveau si ≥ 400)',
+                    this.identityPicker.rules.language['inconsistentCertification'] || 'Les niveaux de certification des attributs pivots doivent être cohérents (tous du même niveau si ≥ 400)',
                     'error'
                 );
                 for (const attrKey of filledPivotAttrs) {
@@ -416,7 +416,7 @@ export default class IdentityForm {
                             certSelect.classList.add('ip-error-input');
                         }
                         if (certError) {
-                            certError.textContent = this.identityPicker.rules.language.inconsistentCertLevelForAttr || 'Niveau de certification incohérent, doit être le même que les autres attributs pivots';
+                            certError.textContent = this.identityPicker.rules.language['inconsistentCertLevelForAttr'] || 'Niveau de certification incohérent, doit être le même que les autres attributs pivots';
                             certError.style.display = 'block';
                         }
                     }
@@ -448,7 +448,7 @@ export default class IdentityForm {
             }
         }
         const url = mode === 'create' ? this.identityPicker.config.endpoints.identity : `${this.identityPicker.config.endpoints.identity}/${this.identity.customer_id}`;
-        this.identityPicker.showLoading(this.identityPicker.rules.language.loading);
+        this.identityPicker.showLoading(this.identityPicker.rules.language['loading']);
         try {
             const response = await fetch(url, {
                 method: mode === 'create' ? 'POST' : 'PUT',
@@ -464,14 +464,14 @@ export default class IdentityForm {
             const successMessage = mode === 'create' ? 'successCreate' : 'successModify';
             await this.identityPicker.showDetailsView(responseData.customer_id, 'results', 'success', successMessage);
         } catch (error) {
-            console.error(this.identityPicker.rules.language.fetchError, error);
+            console.error(this.identityPicker.rules.language['fetchError'], error);
             if (error.status && (error.status.attributes_status || error.status.message)) {
                 this.handleSaveError(error);
             } else if (error instanceof Response) {
-                const errorMessage = `${this.identityPicker.rules.language.httpError} ${error.status}`;
+                const errorMessage = `${this.identityPicker.rules.language['httpError']} ${error.status}`;
                 this.identityPicker.showMessage('errorMessage', 'error', errorMessage);
             } else {
-                const errorMessage = error.message || this.identityPicker.rules.language.unknownError;
+                const errorMessage = error.message || this.identityPicker.rules.language['unknownError'];
                 this.identityPicker.showMessage('errorMessage', 'error', errorMessage);
             }
         } finally {
@@ -506,13 +506,13 @@ export default class IdentityForm {
                 searchEnabled: true,
                 itemSelectText: '',
                 placeholder: true,
-                placeholderValue: this.identityPicker.rules.language.selectCountry,
-                searchPlaceholderValue: this.identityPicker.rules.language.searchCountry,
+                placeholderValue: this.identityPicker.rules.language['selectCountry'],
+                searchPlaceholderValue: this.identityPicker.rules.language['searchCountry'],
                 shouldSort: false,
                 shadowRoot: this.identityPicker.shadowRoot,
-                noResultsText: this.identityPicker.rules.language.noCountryResults,
-                noChoicesText: this.identityPicker.rules.language.noCountryAvailable,
-                loadingText: this.identityPicker.rules.language.loadingCountries,
+                noResultsText: this.identityPicker.rules.language['noCountryResults'],
+                noChoicesText: this.identityPicker.rules.language['noCountryAvailable'],
+                loadingText: this.identityPicker.rules.language['loadingCountries'],
             });
             this.birthcountryChoices.passedElement.element.addEventListener(
                 'search',
@@ -561,7 +561,7 @@ export default class IdentityForm {
                 }
             })
             .catch(error => {
-                console.error(`${this.identityPicker.rules.language.fetchError} ${type === 'birthcountry' ? this.identityPicker.rules.language.loadingCountries : this.identityPicker.rules.language.loadingCities}`, error);
+                console.error(`${this.identityPicker.rules.language['fetchError']} ${type === 'birthcountry' ? this.identityPicker.rules.language['loadingCountries'] : this.identityPicker.rules.language['loadingCities']}`, error);
                 choicesInstance.setChoices([], 'value', 'label', true);
             });
     }
@@ -634,12 +634,12 @@ export default class IdentityForm {
                 searchEnabled: true,
                 itemSelectText: '',
                 placeholder: true,
-                placeholderValue: this.identityPicker.rules.language.selectCity,
-                searchPlaceholderValue: this.identityPicker.rules.language.searchCity,
+                placeholderValue: this.identityPicker.rules.language['selectCity'],
+                searchPlaceholderValue: this.identityPicker.rules.language['searchCity'],
                 shouldSort: false,
-                noResultsText: this.identityPicker.rules.language.noCityResults,
-                noChoicesText: this.identityPicker.rules.language.noCityAvailable,
-                loadingText: this.identityPicker.rules.language.loadingCities,
+                noResultsText: this.identityPicker.rules.language['noCityResults'],
+                noChoicesText: this.identityPicker.rules.language['noCityAvailable'],
+                loadingText: this.identityPicker.rules.language['loadingCities'],
                 shadowRoot: this.identityPicker.shadowRoot,
             });
             this.birthplaceChoices.passedElement.element.addEventListener(
@@ -703,13 +703,17 @@ export default class IdentityForm {
         this.clearFieldErrors();
         if (error.status && error.status.attributes_status) {
             this.displayFieldErrors(error.status.attributes_status);
-            const generalMessage = error.status.message || this.identityPicker.rules.language.validationError || 'Erreur de validation';
+            const generalMessage = error.status.message || this.identityPicker.rules.language['validationError'] || 'Erreur de validation';
             this.identityPicker.showMessage('errorMessage', 'error', generalMessage);
+        } else if (error.status && error.status.message_key) {
+            const translatedMessage = this.identityPicker.rules.language[error.status.message_key] || error.status.message;
+            this.identityPicker.showMessage('errorMessage', 'error', translatedMessage);
+            console.error('Erreur serveur:', error.status);
         } else if (error.status && error.status.message) {
             this.identityPicker.showMessage('errorMessage', 'error', error.status.message);
             console.error('Erreur serveur:', error.status);
         } else {
-            this.identityPicker.showMessage('errorMessage', 'error', this.identityPicker.rules.language.unknownError || 'Une erreur inconnue est survenue');
+            this.identityPicker.showMessage('errorMessage', 'error', this.identityPicker.rules.language['unknownError'] || 'Une erreur inconnue est survenue');
             console.error('Erreur non catégorisée:', error);
         }
     }

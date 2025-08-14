@@ -19,12 +19,12 @@ export default class IdentityView {
         try {
             const response = await fetch(url);
             if (!response.ok) {
-                throw new Error(`${this.identityPicker.rules.language.httpError} ${response.status}`);
+                throw new Error(`${this.identityPicker.rules.language['httpError']} ${response.status}`);
             }
             const identityData = await response.json();
             this.fillFields(identityData);
         } catch (error) {
-            console.error(this.identityPicker.rules.language.fetchError, error);
+            console.error(this.identityPicker.rules.language['fetchError'], error);
         }
     }
 
@@ -44,13 +44,13 @@ export default class IdentityView {
             const identityData = await identityResponse.json();
             this.displayIdentityDetails(identityData);
         } catch (error) {
-            console.error(this.identityPicker.rules.language.fetchError, error);
+            console.error(this.identityPicker.rules.language['fetchError'], error);
             let errorMessage;
             if (error instanceof Response) {
                 if (error.status === 403) {
-                    errorMessage = `${this.identityPicker.rules.language.httpError} 403`;
+                    errorMessage = `${this.identityPicker.rules.language['httpError']} 403`;
                 } else {
-                    errorMessage = `${this.identityPicker.rules.language.httpError} ${error.status}`;
+                    errorMessage = `${this.identityPicker.rules.language['httpError']} ${error.status}`;
                 }
             } else {
                 errorMessage = error.message;
@@ -98,26 +98,26 @@ export default class IdentityView {
                 <div>
                     <h3 class="ip-truncate">${firstName} ${lastName}${preferredUsername ? ` (<i>${preferredUsername.toUpperCase()}</i>)` : ''}</h3>
                     <p class="ip-truncate ip-description">${identity.customer_id}</p>
-                    ${showValidateEmailButton ? `<button class="ip-validate-email-btn ip-button-mini ip-button-yellow">⚠️ ${this.identityPicker.rules.language.validateEmailButton}</button>` : ''}
+                    ${showValidateEmailButton ? `<button class="ip-validate-email-btn ip-button-mini ip-button-yellow">⚠️ ${this.identityPicker.rules.language['validateEmailButton']}</button>` : ''}
                 </div>
                 <div class="ip-container-header-btns">
-                    <button class="ip-history-btn">${this.identityPicker.rules.language.historyButton}</button>
-                    ${this.identityPicker.permissions.update ? `<button class="ip-modify-btn">${this.identityPicker.rules.language.modifyButton}</button>` : ''}
-                    ${Object.keys(this.identityPicker.config.fieldMapping || {}).length > 0 && this.identityPicker.config.selection ? `<button class="ip-select-btn" ${!isSelected ? 'disabled' : ''}>${!isSelected ? `${this.identityPicker.rules.language.selectedButton}` : `${this.identityPicker.rules.language.selectButton}`}</button>` : ''}
+                    <button class="ip-history-btn">${this.identityPicker.rules.language['historyButton']}</button>
+                    ${this.identityPicker.permissions.update ? `<button class="ip-modify-btn">${this.identityPicker.rules.language['modifyButton']}</button>` : ''}
+                    ${Object.keys(this.identityPicker.config.fieldMapping || {}).length > 0 && this.identityPicker.config.selection ? `<button class="ip-select-btn" ${!isSelected ? 'disabled' : ''}>${!isSelected ? `${this.identityPicker.rules.language['selectedButton']}` : `${this.identityPicker.rules.language['selectButton']}`}</button>` : ''}
                 </div>
             </div>
             <div class="ip-info-tags">
                 <span class="ip-info-tag ip-tag-default">
-                    <strong>${this.identityPicker.rules.language.creationDate}</strong> ${formatDate(identity.creation_date)}
+                    <strong>${this.identityPicker.rules.language['creationDate']}</strong> ${formatDate(identity.creation_date)}
                 </span>
                 <span class="ip-info-tag ip-tag-default">
-                    <strong>${this.identityPicker.rules.language.lastUpdateDate}</strong> ${formatDate(identity.last_update_date)}
+                    <strong>${this.identityPicker.rules.language['lastUpdateDate']}</strong> ${formatDate(identity.last_update_date)}
                 </span>
                 <span class="ip-info-tag ${identity.mon_paris_active ? 'ip-tag-success' : 'ip-tag-error'}">
-                    <strong>${this.identityPicker.rules.language.monParisAccount}</strong> ${identity.mon_paris_active ? this.identityPicker.rules.language.active : (identity.expiration && identity.expiration.delete_date ? `${this.identityPicker.rules.language.inactive} (Supprimé)` : this.identityPicker.rules.language.inactive)} ${!identity.mon_paris_active && showCreateAccountButton ? `<button class="ip-create-account-btn ip-button-mini ip-button-red">${this.identityPicker.rules.language.createAccountButton}</button>` : ''}
+                    <strong>${this.identityPicker.rules.language['monParisAccount']}</strong> ${identity.mon_paris_active ? this.identityPicker.rules.language['active'] : (identity.expiration && identity.expiration.delete_date ? `${this.identityPicker.rules.language['inactive']} (Supprimé)` : this.identityPicker.rules.language['inactive'])} ${!identity.mon_paris_active && showCreateAccountButton ? `<button class="ip-create-account-btn ip-button-mini ip-button-red">${this.identityPicker.rules.language['createAccountButton']}</button>` : ''}
                 </span>
                 <span class="ip-info-tag ${this.getCoverageClass(identity.quality.coverage)}">
-                    <strong>${this.identityPicker.rules.language.coverage}</strong> ${identity.quality.coverage === 1 ? 'Informations Complètes' : 'Informations à compléter'}
+                    <strong>${this.identityPicker.rules.language['coverage']}</strong> ${identity.quality.coverage === 1 ? 'Informations Complètes' : 'Informations à compléter'}
                 </span>
             </div>`;
     }
@@ -145,7 +145,7 @@ export default class IdentityView {
                 <tbody>`;
         for (const [groupKey, attrs] of Object.entries(groupedAttributes)) {
             if (attrs.length > 0) {
-                const groupLabel = groupKey === 'other' ? this.identityPicker.rules.language.otherGroup : this.identityPicker.rules.language[`${groupKey}Group`];
+                const groupLabel = groupKey === 'other' ? this.identityPicker.rules.language['otherGroup'] : this.identityPicker.rules.language[`${groupKey}Group`];
                 tableHTML += `
                     <tr class="ip-group-separator">
                         <td class="ip-table-separator" colspan="3">${groupLabel}</td>
@@ -338,15 +338,15 @@ export default class IdentityView {
         });
         createAccountButton?.addEventListener('click', () => {
             this.identityPicker.showConfirmDialog(
-                this.identityPicker.rules.language.createAccountConfirmTitle || 'Create Account',
-                this.identityPicker.rules.language.createAccountConfirmMessage || 'Are you sure you want to create an account for this identity?',
+                this.identityPicker.rules.language['createAccountConfirmTitle'] || 'Create Account',
+                this.identityPicker.rules.language['createAccountConfirmMessage'] || 'Are you sure you want to create an account for this identity?',
                 () => this.createIdentityTask(identity.customer_id, 'create-account-task')
             );
         });
         validateEmailButton?.addEventListener('click', () => {
             this.identityPicker.showConfirmDialog(
-                this.identityPicker.rules.language.validateEmailConfirmTitle || 'Validate Email',
-                this.identityPicker.rules.language.validateEmailConfirmMessage || 'Are you sure you want to validate the email for this identity?',
+                this.identityPicker.rules.language['validateEmailConfirmTitle'] || 'Validate Email',
+                this.identityPicker.rules.language['validateEmailConfirmMessage'] || 'Are you sure you want to validate the email for this identity?',
                 () => this.createIdentityTask(identity.customer_id, 'validate-email-task')
             );
         });
@@ -369,33 +369,33 @@ export default class IdentityView {
             });
             const data = await response.json();
             if (!response.ok) {
-                let errorMessage = data.status && data.status.message ? data.status.message : this.identityPicker.rules.language.fetchError;
+                let errorMessage = data.status && data.status.message ? data.status.message : this.identityPicker.rules.language['fetchError'];
                 this.identityPicker.showMessage(
-                    this.identityPicker.rules.language.taskCreationFailed,
+                    this.identityPicker.rules.language['taskCreationFailed'],
                     'error',
                     errorMessage
                 );
                 return;
             }
             const taskCode = data.task_code;
-            const successTitle = this.identityPicker.rules.language.taskCreationSuccess;
-            const description = `${this.identityPicker.rules.language.taskCode}: ${taskCode}`;
+            const successTitle = this.identityPicker.rules.language['taskCreationSuccess'];
+            const description = `${this.identityPicker.rules.language['taskCode']}: ${taskCode}`;
             this.identityPicker.showMessage(successTitle, 'success', description);
         } catch (error) {
-            console.error(this.identityPicker.rules.language.fetchError, error);
+            console.error(this.identityPicker.rules.language['fetchError'], error);
             let errorMessage;
             if (error instanceof Response) {
                 try {
                     const errorData = await error.json();
-                    errorMessage = errorData.status && errorData.status.message ? errorData.status.message : error.statusText || this.identityPicker.rules.language.fetchError;
+                    errorMessage = errorData.status && errorData.status.message ? errorData.status.message : error.statusText || this.identityPicker.rules.language['fetchError'];
                 } catch (e) {
-                    errorMessage = error.statusText || this.identityPicker.rules.language.fetchError;
+                    errorMessage = error.statusText || this.identityPicker.rules.language['fetchError'];
                 }
             } else {
-                errorMessage = error.message || this.identityPicker.rules.language.fetchError;
+                errorMessage = error.message || this.identityPicker.rules.language['fetchError'];
             }
             this.identityPicker.showMessage(
-                this.identityPicker.rules.language.taskCreationFailed,
+                this.identityPicker.rules.language['taskCreationFailed'],
                 'error',
                 errorMessage
             );

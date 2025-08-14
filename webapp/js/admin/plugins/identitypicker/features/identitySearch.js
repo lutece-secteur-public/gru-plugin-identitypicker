@@ -25,39 +25,39 @@ export default class IdentitySearch {
             <div class="ip-search-option">
                 <label>
                     <input type="radio" name="searchType" value="email">
-                    <span>${this.identityPicker.rules.language.searchByEmail}</span>
+                    <span>${this.identityPicker.rules.language['searchByEmail']}</span>
                 </label>
                 <label>
                     <input type="radio" name="searchType" value="name" checked>
-                    <span>${this.identityPicker.rules.language.searchByName}</span>
+                    <span>${this.identityPicker.rules.language['searchByName']}</span>
                 </label>
             </div>
             <form id="ip-email-form-${this.uniqueId}" style="display: none;">
                 <div class="ip-input-group">
-                    <label for="ip-email-input-${this.uniqueId}">${this.identityPicker.rules.language.emailPlaceholder}</label>
+                    <label for="ip-email-input-${this.uniqueId}">${this.identityPicker.rules.language['emailPlaceholder']}</label>
                     <input id="ip-email-input-${this.uniqueId}" type="email" name="email" required>
                 </div>
                 <div class="ip-container-buttons">
-                    <button class="ip-button-light ip-button-close" type="button">${this.identityPicker.rules.language.closeButton}</button>
-                    <button type="submit">${searchIcon} ${this.identityPicker.rules.language.searchButton}</button>
+                    <button class="ip-button-light ip-button-close" type="button">${this.identityPicker.rules.language['closeButton']}</button>
+                    <button type="submit">${searchIcon} ${this.identityPicker.rules.language['searchButton']}</button>
                 </div>
             </form>
             <form id="ip-name-form-${this.uniqueId}">
                 <div class="ip-input-group">
-                    <label for="ip-lastname-input-${this.uniqueId}">${this.identityPicker.rules.language.lastNamePlaceholder}</label>
+                    <label for="ip-lastname-input-${this.uniqueId}">${this.identityPicker.rules.language['lastNamePlaceholder']}</label>
                     <input id="ip-lastname-input-${this.uniqueId}" type="text" name="lastName" required>
                 </div>
                 <div class="ip-input-group">
-                    <label for="ip-firstname-input-${this.uniqueId}">${this.identityPicker.rules.language.firstNamePlaceholder}</label>
+                    <label for="ip-firstname-input-${this.uniqueId}">${this.identityPicker.rules.language['firstNamePlaceholder']}</label>
                     <input id="ip-firstname-input-${this.uniqueId}" type="text" name="firstName" required>
                 </div>
                 <div class="ip-input-group">
-                    <label for="ip-birthdate-input-${this.uniqueId}">${this.identityPicker.rules.language.birthdatePlaceholder}</label>
-                    <input id="ip-birthdate-input-${this.uniqueId}" type="date" placeholder="${this.identityPicker.rules.language.birthdatePlaceholder}" name="birthdate" required>
+                    <label for="ip-birthdate-input-${this.uniqueId}">${this.identityPicker.rules.language['birthdatePlaceholder']}</label>
+                    <input id="ip-birthdate-input-${this.uniqueId}" type="date" placeholder="${this.identityPicker.rules.language['birthdatePlaceholder']}" name="birthdate" required>
                 </div>
                 <div class="ip-container-buttons">
-                    <button class="ip-button-light ip-button-close" type="button">${this.identityPicker.rules.language.closeButton}</button>
-                    <button type="submit">${searchIcon} ${this.identityPicker.rules.language.searchButton}</button>
+                    <button class="ip-button-light ip-button-close" type="button">${this.identityPicker.rules.language['closeButton']}</button>
+                    <button type="submit">${searchIcon} ${this.identityPicker.rules.language['searchButton']}</button>
                 </div>
             </form>
         `;
@@ -115,7 +115,7 @@ export default class IdentitySearch {
      * @returns {Promise<void>}
      */
     async performSearch(formData, searchType) {
-        this.identityPicker.showLoading(this.identityPicker.rules.language.loading);
+        this.identityPicker.showLoading(this.identityPicker.rules.language['loading']);
         const url = this.buildSearchUrl(formData, searchType);
 
         try {
@@ -126,12 +126,12 @@ export default class IdentitySearch {
                 return;
             }
             
-            if (!response.ok) throw new Error(`${this.identityPicker.rules.language.httpError} ${response.status}`);
+            if (!response.ok) throw new Error(`${this.identityPicker.rules.language['httpError']} ${response.status}`);
             
             const data = await response.json();
             this.displayResults(data);
         } catch (error) {
-            console.error(this.identityPicker.rules.language.fetchError, error);
+            console.error(this.identityPicker.rules.language['fetchError'], error);
             this.identityPicker.showMessage('errorMessage', 'error', error.message);
         } finally {
             this.identityPicker.hideLoading();
@@ -170,7 +170,7 @@ export default class IdentitySearch {
             
             const searchData = this.getSearchData();
             const searchCriteria = this.buildSearchCriteriaHTML(searchData);
-            const noResultsMessage = this.identityPicker.rules.language.noResults || 'Aucun résultat trouvé';
+            const noResultsMessage = this.identityPicker.rules.language['noResults'] || 'Aucun résultat trouvé';
             
             resultsContainer.innerHTML = `
                 ${searchCriteria}
@@ -210,10 +210,10 @@ export default class IdentitySearch {
             
             return `
                 <div class="ip-search-criteria">
-                    <p>${this.identityPicker.rules.language.searchCriteriaTitle || 'Résultats pour'}:</p>
+                    <p>${this.identityPicker.rules.language['searchCriteriaTitle'] || 'Résultats pour'}:</p>
                     <div class="ip-criteria-tags">
                         <span class="ip-tag ip-tag-criteria">
-                            <strong>${this.identityPicker.rules.language.emailPlaceholder}:</strong> ${email}
+                            <strong>${this.identityPicker.rules.language['emailPlaceholder']}:</strong> ${email}
                         </span>
                     </div>
                 </div>
@@ -226,7 +226,7 @@ export default class IdentitySearch {
             if (searchData.lastName) {
                 criteria.push(`
                     <span class="ip-tag ip-tag-criteria">
-                        <strong>${this.identityPicker.rules.language.lastNamePlaceholder}:</strong> ${searchData.lastName}
+                        <strong>${this.identityPicker.rules.language['lastNamePlaceholder']}:</strong> ${searchData.lastName}
                     </span>
                 `);
             }
@@ -234,7 +234,7 @@ export default class IdentitySearch {
             if (searchData.firstName) {
                 criteria.push(`
                     <span class="ip-tag ip-tag-criteria">
-                        <strong>${this.identityPicker.rules.language.firstNamePlaceholder}:</strong> ${searchData.firstName}
+                        <strong>${this.identityPicker.rules.language['firstNamePlaceholder']}:</strong> ${searchData.firstName}
                     </span>
                 `);
             }
@@ -242,14 +242,14 @@ export default class IdentitySearch {
             if (searchData.birthdate) {
                 criteria.push(`
                     <span class="ip-tag ip-tag-criteria">
-                        <strong>${this.identityPicker.rules.language.birthdatePlaceholder}:</strong> ${formatDate(searchData.birthdate)}
+                        <strong>${this.identityPicker.rules.language['birthdatePlaceholder']}:</strong> ${formatDate(searchData.birthdate)}
                     </span>
                 `);
             }
             
             return `
                 <div class="ip-search-criteria">
-                    <p>${this.identityPicker.rules.language.searchCriteriaTitle || 'Résultats pour'}:</p>
+                    <p>${this.identityPicker.rules.language['searchCriteriaTitle'] || 'Résultats pour'}:</p>
                     <div class="ip-criteria-tags">
                         ${criteria.join('')}
                     </div>
@@ -302,7 +302,7 @@ export default class IdentitySearch {
         
         const monParisBadge = `
             <span class="ip-info-tag ${result.mon_paris_active ? 'ip-tag-success' : 'ip-tag-error'}">
-                <strong>${this.identityPicker.rules.language.monParisAccount}</strong> ${result.mon_paris_active ? this.identityPicker.rules.language.active : (result.expiration && result.expiration.delete_date ? `${this.identityPicker.rules.language.inactive} (Supprimé)` : this.identityPicker.rules.language.inactive)}
+                <strong>${this.identityPicker.rules.language['monParisAccount']}</strong> ${result.mon_paris_active ? this.identityPicker.rules.language['active'] : (result.expiration && result.expiration.delete_date ? `${this.identityPicker.rules.language['inactive']} (Supprimé)` : this.identityPicker.rules.language['inactive'])}
             </span>
         `;
         
@@ -372,7 +372,7 @@ export default class IdentitySearch {
         
         if (hasCompareButton) {
             const compareButton = document.createElement('button');
-            compareButton.textContent = this.identityPicker.rules.language.compareButton;
+            compareButton.textContent = this.identityPicker.rules.language['compareButton'];
             compareButton.classList.add('ip-button-light');
             compareButton.addEventListener('click', () => {
                 this.identityPicker.identityCompare.initCompareView(results);
@@ -383,7 +383,7 @@ export default class IdentitySearch {
         
         if (hasCreateButton) {
             const createButton = document.createElement('button');
-            createButton.textContent = this.identityPicker.rules.language.createButton;
+            createButton.textContent = this.identityPicker.rules.language['createButton'];
             createButton.classList.add('ip-create-button');
             createButton.addEventListener('click', () => this.identityPicker.showIdentityFormView());
             buttonContainer.appendChild(createButton);

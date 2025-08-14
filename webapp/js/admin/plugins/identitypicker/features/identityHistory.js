@@ -18,7 +18,7 @@ export default class IdentityHistory {
      * @returns {Promise<void>}
      */
     async loadGlobalHistory(customerId) {
-        this.identityPicker.showLoading(this.identityPicker.rules.language.loadingHistory);
+        this.identityPicker.showLoading(this.identityPicker.rules.language['loadingHistory']);
         try {
             const [identityHistory, tasksData] = await Promise.all([
                 this.fetchIdentityHistory(customerId),
@@ -28,7 +28,7 @@ export default class IdentityHistory {
             this.initFuseSearch();
             this.displayGlobalHistory(this.globalHistory);
         } catch (error) {
-            console.error(this.identityPicker.rules.language.fetchError, error);
+            console.error(this.identityPicker.rules.language['fetchError'], error);
             this.identityPicker.showMessage('errorLoadingHistory', 'error');
         } finally {
             this.identityPicker.hideLoading();
@@ -44,7 +44,7 @@ export default class IdentityHistory {
         const url = `${this.identityPicker.config.endpoints.identity}/${customerId}/${this.identityPicker.config.endpoints.history}`;
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`${this.identityPicker.rules.language.httpError} ${response.status}`);
+            throw new Error(`${this.identityPicker.rules.language['httpError']} ${response.status}`);
         }
         return response.json();
     }
@@ -58,7 +58,7 @@ export default class IdentityHistory {
         const url = `${this.identityPicker.config.endpoints.identity}/${customerId}/${this.identityPicker.config.endpoints.tasks}`;
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`${this.identityPicker.rules.language.httpError} ${response.status}`);
+            throw new Error(`${this.identityPicker.rules.language['httpError']} ${response.status}`);
         }
         return response.json();
     }
@@ -75,8 +75,9 @@ export default class IdentityHistory {
         
         if (identityHistory && identityHistory.identity_changes) {
             identityHistory.identity_changes.forEach(change => {
-            const changeTypeText = language.history[change.changeType.toLowerCase()]?.[change.changeStatus.toLowerCase()] || '';
-            const authorName = change.author?.author_name || language.unknown;
+            const changeKey = `history.${change.changeType.toLowerCase()}.${change.changeStatus.toLowerCase()}`;
+            const changeTypeText = language[changeKey] || '';
+            const authorName = change.author?.author_name || language['unknown'];
             const changeMessage = change.changeMessage || '';
             const formattedDate = this.formatDate(parseInt(change.modificationDate));
             allEvents.push({
@@ -97,7 +98,7 @@ export default class IdentityHistory {
             const attributeLabel = attributeInfo?.label || '';
             attrHistory.attribute_changes.forEach(change => {
                 const attributeValue = change.attribute_value || '';
-                const attributeChangeType = language.attributeChangeType || '';
+                const attributeChangeType = language['attributeChangeType'] || '';
                 const certificationProcess = change.certification_processus || '';
                 const formattedDate = this.formatDate(parseInt(change.modification_date));
                 allEvents.push({
@@ -121,11 +122,10 @@ export default class IdentityHistory {
         if (tasksData && Array.isArray(tasksData) && tasksData.length > 0) {
             tasksData.forEach(task => {
             task.task_history.forEach(change => {
-                const taskLanguage = language.tasks;
-                const taskTypeText = this.getTaskTypeText(task.task_type, taskLanguage);
-                const changeTypeText = this.getTaskChangeTypeText(task.task_type, change.task_change_type, change.task_status, taskLanguage);
-                const statusText = this.getTaskStatusText(task.task_type, change.task_status, taskLanguage);
-                const authorName = change.request_author?.author_name || language.unknown;
+                const taskTypeText = this.getTaskTypeText(task.task_type, language);
+                const changeTypeText = this.getTaskChangeTypeText(task.task_type, change.task_change_type, change.task_status, language);
+                const statusText = this.getTaskStatusText(task.task_type, change.task_status, language);
+                const authorName = change.request_author?.author_name || language['unknown'];
                 const metadataText = Object.values(task.metadata || {}).join(' ');
                 const formattedDate = this.formatDate(parseInt(change.task_change_date));
                 allEvents.push({
@@ -154,9 +154,9 @@ export default class IdentityHistory {
      * @param {Object} languageTasks - The language tasks object
      * @returns {string} Localized task type text
      */
-    getTaskTypeText(taskType, languageTasks) {
-        const key = taskType.toLowerCase();
-        return languageTasks[key]?.label || taskType;
+    getTaskTypeText(taskType, language) {
+        const key = `tasks.${taskType.toLowerCase()}.label`;
+        return language[key] || taskType;
     }
 
     /**
@@ -167,11 +167,9 @@ export default class IdentityHistory {
      * @param {Object} languageTasks - The language tasks object
      * @returns {string} Localized task change type text
      */
-    getTaskChangeTypeText(taskType, changeType, status, languageTasks) {
-        const taskKey = taskType.toLowerCase();
-        const changeKey = changeType.toLowerCase();
-        const statusKey = status.toLowerCase();
-        return languageTasks[taskKey]?.[changeKey]?.[statusKey] || `${taskType} ${changeType} ${status}`;
+    getTaskChangeTypeText(taskType, changeType, status, language) {
+        const key = `tasks.${taskType.toLowerCase()}.${changeType.toLowerCase()}.${status.toLowerCase()}`;
+        return language[key] || `${taskType} ${changeType} ${status}`;
     }
 
     /**
@@ -181,10 +179,9 @@ export default class IdentityHistory {
      * @param {Object} languageTasks - The language tasks object
      * @returns {string} Localized task status text
      */
-    getTaskStatusText(taskType, status, languageTasks) {
-        const taskKey = taskType.toLowerCase();
-        const statusKey = status.toLowerCase();
-        return languageTasks[taskKey]?.status?.[statusKey] || status;
+    getTaskStatusText(taskType, status, language) {
+        const key = `tasks.${taskType.toLowerCase()}.status.${status.toLowerCase()}`;
+        return language[key] || status;
     }
 
     /**
@@ -257,7 +254,7 @@ export default class IdentityHistory {
         const historyHTML = this.generateGlobalHistoryHTML(globalHistory);
         const searchBarHTML = this.generateSearchBarHTML();
         this.identityPicker.openSideContainer(
-            this.identityPicker.rules.language.historyTitle,
+            this.identityPicker.rules.language['historyTitle'],
             searchBarHTML + `<div class="ip-timeline">${historyHTML}</div>`
         );
         this.attachListener();
@@ -270,7 +267,7 @@ export default class IdentityHistory {
     generateSearchBarHTML() {
         return `
             <div class="ip-search-bar">
-                <input type="text" class="ip-search-input" placeholder="${this.identityPicker.rules.language.searchHistory}">
+                <input type="text" class="ip-search-input" placeholder="${this.identityPicker.rules.language['searchHistory']}">
             </div>
         `;
     }
@@ -427,9 +424,9 @@ export default class IdentityHistory {
      */
     getEventTypeLabel(type) {
         const labels = {
-            identity: this.identityPicker.rules.language.identityChangeType,
-            attribute: this.identityPicker.rules.language.attributeChangeType,
-            task: this.identityPicker.rules.language.taskChangeType
+            identity: this.identityPicker.rules.language['identityChangeType'],
+            attribute: this.identityPicker.rules.language['attributeChangeType'],
+            task: this.identityPicker.rules.language['taskChangeType']
         };
         return labels[type] || type;
     }
@@ -444,7 +441,7 @@ export default class IdentityHistory {
         return `
             <div class="ip-identity-change-header">
                 <h3 class="change-type">${event.changeTypeText}</h3>
-                <span title="${this.identityPicker.rules.language.author}">${event.authorName}</span>
+                <span title="${this.identityPicker.rules.language['author']}">${event.authorName}</span>
             </div>
         `;
     }
@@ -470,7 +467,7 @@ export default class IdentityHistory {
                     <div class="ip-attribute-name">${event.attributeLabel}</div>
                     <div class="ip-attribute-value">${attrValue}</div>
                     <div class="ip-attribute-certification" title="${certTitle}">
-                        <span class="ip-certification-label">${this.identityPicker.rules.language.attributeCertification || 'Certification'}:</span>
+                        <span class="ip-certification-label">${this.identityPicker.rules.language['attributeCertification'] || 'Certification'}:</span>
                         <span class="ip-certification-value">${certLabel}</span>
                     </div>
                 </div>
@@ -496,7 +493,7 @@ export default class IdentityHistory {
     copyToClipboard(text, button) {
         navigator.clipboard.writeText(text).then(() => {
             const originalText = button.textContent;
-            button.textContent = this.identityPicker.rules.language.copied || 'Copied!';
+            button.textContent = this.identityPicker.rules.language['copied'] || 'Copied!';
             setTimeout(() => {
                 button.textContent = originalText;
             }, 2000);
@@ -514,7 +511,7 @@ export default class IdentityHistory {
         return `
             <div class="ip-task-change">
                 <h3 class="change-type">${event.changeTypeText}</h3>
-                <span title="${this.identityPicker.rules.language.author}">${event.authorName}</span><br>
+                <span title="${this.identityPicker.rules.language['author']}">${event.authorName}</span><br>
                 <button class="ip-copy-button" data-task-code="${event.taskCode}">
                     ${event.taskCode ? `${event.taskCode.substring(0, 15)}...` : 'Copy'}
                 </button>

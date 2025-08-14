@@ -139,7 +139,7 @@ public class IdentityPickerService {
             ServiceContractDto contract = serviceContract
                 .getActiveServiceContract(clientCode, clientCode, author)
                 .getServiceContract();
-            Map<String, Object> language = getLanguage( request );
+            Map<String, String> language = getLanguage( request );
             return new Rules(referential, contract, language);
         } catch (IdentityStoreException e) {
             AppLogService.error("Error while fetching referential data", e);
@@ -434,8 +434,18 @@ public class IdentityPickerService {
      * @param request The HTTP request
      * @return A map of language codes and localized names
      */
-     private Map<String, Object> getLanguage (HttpServletRequest request ) {
-        return IdentityPickerI18nUtils.getAllLocalizedStrings( request.getLocale() );
+    private Map<String, String> getLanguage(HttpServletRequest request) {
+        Map<String, String> result = IdentityPickerI18nUtils.getAllLocalizedStrings(request.getLocale());        
+        Map<String, String> identityStoreTranslations = IdentityPickerI18nUtils.loadIdentityStoreProperties(request.getLocale().getLanguage());
+        if (!identityStoreTranslations.isEmpty()) {
+            Map<String, String> prefixedTranslations = identityStoreTranslations.entrySet().stream()
+                .collect(Collectors.toMap(
+                    entry -> "identitystore." + entry.getKey(),
+                    Map.Entry::getValue
+                ));
+            result.putAll(prefixedTranslations);
+        }
+        return result;
     }
 
     /**
