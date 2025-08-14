@@ -65,6 +65,14 @@ export default class IdentityForm {
      * @returns {Promise<void>}
      */
     async displayForm(mode) {
+        if (this.birthcountryChoices) {
+            this.birthcountryChoices.destroy();
+            this.birthcountryChoices = null;
+        }
+        if (this.birthplaceChoices) {
+            this.birthplaceChoices.destroy();
+            this.birthplaceChoices = null;
+        }
         const formId = `ip-${mode}-form-${this.uniqueId}`;
         let formHtml = `<form id="${formId}">`;
         for (const [groupKey, group] of Object.entries(this.identityPicker.config.attributeGroups)) {
@@ -629,41 +637,40 @@ export default class IdentityForm {
             birthplaceInput.parentNode.replaceChild(selectElement, birthplaceInput);
             birthplaceInput = selectElement;
         }
-        if (!this.birthplaceChoices) {
-            this.birthplaceChoices = new Choices(birthplaceInput, {
-                searchEnabled: true,
-                itemSelectText: '',
-                placeholder: true,
-                placeholderValue: this.identityPicker.rules.language['selectCity'],
-                searchPlaceholderValue: this.identityPicker.rules.language['searchCity'],
-                shouldSort: false,
-                noResultsText: this.identityPicker.rules.language['noCityResults'],
-                noChoicesText: this.identityPicker.rules.language['noCityAvailable'],
-                loadingText: this.identityPicker.rules.language['loadingCities'],
-                shadowRoot: this.identityPicker.shadowRoot,
-            });
-            this.birthplaceChoices.passedElement.element.addEventListener(
-                'search',
-                debounce((event) => {
-                    const query = event.detail.value;
-                    if (query && query.length >= this.identityPicker.config.choices.minSearchLength) {
-                        this.fetchGeoCode('birthplace', query, this.identityPicker.identityFormContainer.querySelector('#birthdate').value, this.birthplaceChoices);
-                    }
-                }, this.identityPicker.config.choices.debounceTime)
-            );
-            this.birthplaceChoices.passedElement.element.addEventListener('choice', event => {
-                if (birthplaceCodeInput) {
-                    birthplaceCodeInput.value = event.detail.value;
+        // Always recreate the Choices instance to ensure proper initialization
+        if (this.birthplaceChoices) {
+            this.birthplaceChoices.destroy();
+            this.birthplaceChoices = null;
+        }
+        
+        this.birthplaceChoices = new Choices(birthplaceInput, {
+            searchEnabled: true,
+            itemSelectText: '',
+            placeholder: true,
+            placeholderValue: this.identityPicker.rules.language['selectCity'],
+            searchPlaceholderValue: this.identityPicker.rules.language['searchCity'],
+            shouldSort: false,
+            noResultsText: this.identityPicker.rules.language['noCityResults'],
+            noChoicesText: this.identityPicker.rules.language['noCityAvailable'],
+            loadingText: this.identityPicker.rules.language['loadingCities'],
+            shadowRoot: this.identityPicker.shadowRoot,
+        });
+        this.birthplaceChoices.passedElement.element.addEventListener(
+            'search',
+            debounce((event) => {
+                const query = event.detail.value;
+                if (query && query.length >= this.identityPicker.config.choices.minSearchLength) {
+                    this.fetchGeoCode('birthplace', query, this.identityPicker.identityFormContainer.querySelector('#birthdate').value, this.birthplaceChoices);
                 }
-            });
-            if (currentValue && currentCode) {
-                this.birthplaceChoices.setChoiceByValue(currentCode);
+            }, this.identityPicker.config.choices.debounceTime)
+        );
+        this.birthplaceChoices.passedElement.element.addEventListener('choice', event => {
+            if (birthplaceCodeInput) {
+                birthplaceCodeInput.value = event.detail.value;
             }
-        } else {
-            this.birthplaceChoices.enable();
-            if (currentValue && currentCode) {
-                this.birthplaceChoices.setChoiceByValue(currentCode);
-            }
+        });
+        if (currentValue && currentCode) {
+            this.birthplaceChoices.setChoiceByValue(currentCode);
         }
     }
 
