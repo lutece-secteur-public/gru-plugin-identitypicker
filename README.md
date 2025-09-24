@@ -1,26 +1,25 @@
 # IdentityPicker Plugin
 
 ## Table of Contents
-- [Overview](#overview)
-- [Features](#features)
+- [Description](#Description)
+  - [Features](#features)
 - [Configuration](#configuration)
-- [REST API Usage](#rest-api-usage)
-  - [Endpoints](#endpoints)
-  - [Query Parameters for Search](#query-parameters-for-search)
-  - [Examples](#examples)
-- [Security](#security)
-- [Permissions](#permissions)
-- [Error Handling](#error-handling)
-- [IdentityPicker Macro](#identitypicker-macro)
-  - [Including the Macro](#including-the-macro)
+- [Usage](#Usage)
+  - [Permissions](#permissions)
+  - [IdentityPicker Macro](#identitypicker-macro)
   - [Macro Parameters](#macro-parameters)
   - [Detailed Config Object Fields](#detailed-config-object-fields)
   - [Using the Macro](#using-the-macro)
+  - [Endpoints specification](#Endpoints-specification)
+  - [Query Parameters for Search](#query-parameters-for-search)
+  - [Error Handling](#error-handling)
+  
+  
+  
+## Description
+IdentityPicker is plugin that proposes a macro for searching and managing identities within the Identity Store. It also provides a user-friendly interface for looking up and managing identities in your application. This macro consumes private REST services that call the IdentityStore services. 
 
-## Overview
-IdentityPicker is a REST service plugin that enables searching and managing identities within the Identity Store. It also provides a user-friendly interface for looking up and managing identities in your application.
-
-## Features
+### Features
 - Search identities by email
 - Search identities by last name, first name, and birth date
 - RBAC-based access control
@@ -29,55 +28,33 @@ IdentityPicker is a REST service plugin that enables searching and managing iden
 - Task creation
 - Tasks history
 - Identity creation and update
+- fill selected Fields values in the html page context after identity selection
 
 ## Configuration
 Set the default client code in the `identitypicker.properties` file:
 
 ```
 identitypicker.default.client.code=your_client_code_here
-identitypicker.identitystore.ApiEndPointUrl=your_identitystore_url
-identitypicker.identityquality.endpoint.identityPath=your_identity_path
-identitypicker.identityquality.endpoint.stackTaskPath=your_task_path
+identitypicker.identitystore.ApiEndPointUrl=your api url
+identitypicker.identitystore.AccessManagerEndPointUrl=your am url
+identitypicker.identitystore.AccessManagerCredentials=your token
+
 ```
 
-## REST API Usage
-The plugin exposes REST endpoints for searching and retrieving identities.
+If necessary (creation and update), Set the  `geocodesclient.properties` file:
+```
+    geocodes.identitystore.ApiEndPointUrl=your api url
+    geocodes.identitystore.accessManagerEndPointUrl=
+    geocodes.identitystore.accessManagerCredentials=
+    geocodes.override.default.date.pattern=yyyy-MM-dd
+```
 
-### Endpoints
-| Endpoint | HTTP Method | Authentication | Specific Permission |
-|----------|-------------|-----------------|---------------------|
-| `/rest/identitystore/api/permissions` | GET | AdminUser | No additional permission |
-| `/rest/identitystore/api/rules` | GET | AdminUser | At least one permission required  
-| `/rest/identitystore/api/search` | GET | AdminUser | `PERMISSION_SEARCH` |
-| `/rest/identitystore/api/identity/{customer_id}` | GET | AdminUser | `PERMISSION_VIEW` |
-| `/rest/identitystore/api/identity/{customer_id}/history` | GET | AdminUser | `PERMISSION_VIEW` |
-| `/rest/identitystore/api/identity/{customer_id}/tasks` | GET | AdminUser | `PERMISSION_VIEW` |
-| `/rest/identitystore/api/identity/{customer_id}/tasks/create-account-task` | POST | AdminUser | `PERMISSION_CREATE_TASK` |
-| `/rest/identitystore/api/identity/{customer_id}/tasks/validate-email-task` | POST | AdminUser | `PERMISSION_CREATE_TASK` |
-| `/rest/identitystore/api/identity` | POST | AdminUser | `PERMISSION_CREATE` |
-| `/rest/identitystore/api/identity/{customer_id}` | PUT | AdminUser | `PERMISSION_UPDATE` |
-### Query Parameters for Search
-- `common_email`: Email address
-- `common_lastname`: Last name
-- `first_name`: First name
-- `birthdate`: Birth date (format: DD/MM/YYYY)
-
-### Examples
-1. Search by email:
-   ```
-   GET /rest/identitystore/api/search?email=test@test.fr
-   ```
-2. Search by name and birth date:
-   ```
-   GET /rest/identitystore/api/search?common_lastname=DUBOIS&first_name=test&birthdate=24/08/1962
-   ```
-
-## Security
-- The service requires admin authentication
+## Usage
+- The service requires BackOffice authentication
 - Access is controlled by RBAC permissions
 - Users must have the appropriate permissions on the `IDENTITYPICKER` resource type
 
-## Permissions
+### Permissions
 The IdentityPicker functionality is controlled by RBAC permissions:
 - `SEARCH`: Allows the user to search for identities.
 - `VIEW` :  Allows the user to view identity, history and tasks by `customer_id`.
@@ -85,17 +62,12 @@ The IdentityPicker functionality is controlled by RBAC permissions:
 - `UPDATE`: Allows the user to update identity by `customer_id`.
 - `CREATE_TASK`: Allows the user to create task by `customer_id`.
 
-## Error Handling
-The service returns appropriate HTTP status codes and error messages:
-- 400 Bad Request: Invalid parameters
-- 403 Forbidden: Unauthorized access
-- 404 Not Found: No matching identities
-- 500 Internal Server Error: Unexpected errors
 
-## IdentityPicker Macro
+
+### IdentityPicker Macro
 The IdentityPicker plugin provides a Freemarker macro for easy integration into your templates.
 
-### Including the Macro
+To include the macro, use the autoinclude feature in the plugin.xml file, or use this code above in the Freemarker template:
 ```freemarker
 <#include "/admin/plugins/identitypicker/identitypicker.ftl" />
 ```
@@ -106,7 +78,7 @@ The IdentityPicker plugin provides a Freemarker macro for easy integration into 
 - `update` (default: false): Enables or disables the identity update functionality.
 - `selection` (default: true): Enables or disables the selection functionality.
 - `createTask` (default: false): Enables or disables the task functionality.
-- `fieldMappings` (default: "{}"): A JSON object mapping form field IDs to identity attributes.
+- `fieldMappings` (default: "{}"): A JSON object mapping form field IDs to identity attributes, to return and fill in the html page.
 - `cuid` (default: ""): Specifies the Customer Unique Identifier.
 - `autoFill` (default: false): Enables or disables automatic filling of form fields with selected identity information when cuid is not empty.
 - `btnLabelShow` (default: true): Shows or hides the button label.
@@ -164,3 +136,34 @@ The selected identity's attributes can be automatically filled into html element
   </div>
 </form>
 ```
+
+
+### Endpoints specification
+The plugin exposes REST endpoints for searching and retrieving identities.
+
+| Endpoint | HTTP Method | Authentication | Specific Permission |
+|----------|-------------|-----------------|---------------------|
+| `/rest/identitystore/api/permissions` | GET | AdminUser | No additional permission |
+| `/rest/identitystore/api/rules` | GET | AdminUser | At least one permission required  
+| `/rest/identitystore/api/search` | GET | AdminUser | `PERMISSION_SEARCH` |
+| `/rest/identitystore/api/identity/{customer_id}` | GET | AdminUser | `PERMISSION_VIEW` |
+| `/rest/identitystore/api/identity/{customer_id}/history` | GET | AdminUser | `PERMISSION_VIEW` |
+| `/rest/identitystore/api/identity/{customer_id}/tasks` | GET | AdminUser | `PERMISSION_VIEW` |
+| `/rest/identitystore/api/identity/{customer_id}/tasks/create-account-task` | POST | AdminUser | `PERMISSION_CREATE_TASK` |
+| `/rest/identitystore/api/identity/{customer_id}/tasks/validate-email-task` | POST | AdminUser | `PERMISSION_CREATE_TASK` |
+| `/rest/identitystore/api/identity` | POST | AdminUser | `PERMISSION_CREATE` |
+| `/rest/identitystore/api/identity/{customer_id}` | PUT | AdminUser | `PERMISSION_UPDATE` |
+
+### Query Parameters for Search
+- `common_email`: Email address
+- `common_lastname`: Last name
+- `first_name`: First name
+- `birthdate`: Birth date (format: DD/MM/YYYY)
+
+### Error Handling
+The service returns appropriate HTTP status codes and error messages:
+- 400 Bad Request: Invalid parameters
+- 403 Forbidden: Unauthorized access
+- 404 Not Found: No matching identities
+- 500 Internal Server Error: Unexpected errors
+
