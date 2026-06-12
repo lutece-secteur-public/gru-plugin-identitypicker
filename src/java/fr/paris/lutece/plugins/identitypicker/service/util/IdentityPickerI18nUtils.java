@@ -57,7 +57,7 @@ public class IdentityPickerI18nUtils {
             String value = I18nService.getLocalizedString(fullKey, locale);
             result.put(key.substring(KEY_PREFIX.length()), value);
         } catch (Exception e) {
-            AppLogService.error(ERROR_GETTING_LOCALIZED_STRING + key, e);
+            AppLogService.error("{}{}", ERROR_GETTING_LOCALIZED_STRING, key, e);
         }
     }
     
@@ -76,10 +76,10 @@ public class IdentityPickerI18nUtils {
             if (inputStream != null) {
                 loadPropertiesFromStream(inputStream, result);
             } else {
-                AppLogService.error(ERROR_RESOURCE_NOT_FOUND + resourcePath);
+                AppLogService.error("{}{}", ERROR_RESOURCE_NOT_FOUND, resourcePath);
             }
         } catch (IOException e) {
-            AppLogService.error(ERROR_LOADING_PROPERTIES + resourcePath, e);
+            AppLogService.error("{}{}", ERROR_LOADING_PROPERTIES, resourcePath, e);
         }
         
         return result;

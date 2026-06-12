@@ -5,18 +5,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import fr.paris.lutece.api.user.User;
 import fr.paris.lutece.plugins.identitypicker.business.IdentitySearchCriteria;
@@ -37,11 +40,42 @@ import fr.paris.lutece.portal.service.rbac.RBACService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * REST service for identity management operations.
  */
+@RequestScoped
 @Path(RestConstants.BASE_PATH + IdentityRestConstants.API_PATH)
 public class IdentityRestService {
+
+    /**
+     * Shared Jackson mapper. JSON must be serialized explicitly with Jackson (not left to the
+     * JAX-RS default provider, which is JSON-B/Yasson on Liberty and ignores {@code @JsonProperty}),
+     * so the snake_case attribute names the front-end consumes (e.g. customer_id) are preserved.
+     */
+    private static final ObjectMapper _mapper = new ObjectMapper();
+
+    @Inject
+    @Named( "identitypicker.identityPickerService" )
+    private IdentityPickerService _identityPickerService;
+
+    /**
+     * Builds a JSON response by serializing the payload with Jackson.
+     *
+     * @param status the HTTP status code
+     * @param payload the object to serialize
+     * @return a JSON response, or an internal-server-error response if serialization fails
+     */
+    private Response jsonResponse(int status, Object payload) {
+        try {
+            return Response.status(status).entity(_mapper.writeValueAsString(payload)).type(MediaType.APPLICATION_JSON).build();
+        } catch (JsonProcessingException e) {
+            AppLogService.error(IdentityRestConstants.ERROR_INTERNAL_SERVER, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     /**
      * Search for identities based on given criteria.
@@ -61,7 +95,7 @@ public class IdentityRestService {
             return Response.status(Response.Status.BAD_REQUEST).entity(IdentityRestConstants.ERROR_INVALID_PARAMETERS).build();
         }
         try {
-            List<IdentityDto> identities = IdentityPickerService.getInstance().searchIdentities(searchCriteria, AdminUserService.getAdminUser(request));
+            List<IdentityDto> identities = _identityPickerService.searchIdentities(searchCriteria, AdminUserService.getAdminUser(request));
             return createResponse(identities);
         } catch (IdentityStoreException e) {
             AppLogService.error(IdentityRestConstants.ERROR_INTERNAL_SERVER, e);
@@ -84,10 +118,11 @@ public class IdentityRestService {
             return Response.status(Response.Status.FORBIDDEN).entity(IdentityRestConstants.ERROR_UNAUTHORIZED).build();
         }
         try {
-            Optional<IdentityDto> identity = IdentityPickerService.getInstance().getIdentity(customerId, AdminUserService.getAdminUser(request));
-            return identity.map(Response::ok)
-                           .orElse(Response.status(Response.Status.NOT_FOUND))
-                           .build();
+            Optional<IdentityDto> identity = _identityPickerService.getIdentity(customerId, AdminUserService.getAdminUser(request));
+            if (identity.isPresent()) {
+                return jsonResponse(Response.Status.OK.getStatusCode(), identity.get());
+            }
+            return Response.status(Response.Status.NOT_FOUND).build();
         } catch (IdentityStoreException e) {
             AppLogService.error(IdentityRestConstants.ERROR_INTERNAL_SERVER, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -108,8 +143,8 @@ public class IdentityRestService {
             return Response.status(Response.Status.FORBIDDEN).entity(IdentityRestConstants.ERROR_UNAUTHORIZED).build();
         }
         try {
-            Rules rules = IdentityPickerService.getInstance().getRules(request, AdminUserService.getAdminUser(request));
-            return Response.ok(rules).build();
+            Rules rules = _identityPickerService.getRules(request, AdminUserService.getAdminUser(request));
+            return jsonResponse(Response.Status.OK.getStatusCode(), rules);
         } catch (IdentityStoreException e) {
             if (e.getCause() instanceof HttpAccessException) {
                 AppLogService.error("Unknown host error while fetching rules", e);
@@ -146,7 +181,7 @@ public class IdentityRestService {
             permissions.put(IdentityPickerResourceService.PERMISSION_VIEW, isAuthorized(request, IdentityPickerResourceService.PERMISSION_VIEW));
             permissions.put(IdentityPickerResourceService.PERMISSION_CREATE_TASK, isAuthorized(request, IdentityPickerResourceService.PERMISSION_CREATE_TASK));
 
-            return Response.ok(permissions).build();
+            return jsonResponse(Response.Status.OK.getStatusCode(), permissions);
         } catch (Exception e) {
             AppLogService.error(IdentityRestConstants.ERROR_INTERNAL_SERVER, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -169,9 +204,9 @@ public class IdentityRestService {
             return Response.status(Response.Status.FORBIDDEN).entity(IdentityRestConstants.ERROR_UNAUTHORIZED).build();
         }
         try {
-            IdentityChangeResponse response = IdentityPickerService.getInstance().createIdentity(data, AdminUserService.getAdminUser(servletRequest));
-            int httpCode = IdentityPickerService.getInstance().getHttpCodeFromResponse(response);
-            return Response.status(httpCode).entity(response).build();
+            IdentityChangeResponse response = _identityPickerService.createIdentity(data, AdminUserService.getAdminUser(servletRequest));
+            int httpCode = _identityPickerService.getHttpCodeFromResponse(response);
+            return jsonResponse(httpCode, response);
         } catch (IdentityStoreException e) {
             AppLogService.error(IdentityRestConstants.ERROR_INTERNAL_SERVER, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -195,13 +230,13 @@ public class IdentityRestService {
             return Response.status(Response.Status.FORBIDDEN).entity(IdentityRestConstants.ERROR_UNAUTHORIZED).build();
         }
         try {
-            Optional<IdentityDto> previousIdentity = IdentityPickerService.getInstance().getIdentity(customerId, AdminUserService.getAdminUser(servletRequest));
+            Optional<IdentityDto> previousIdentity = _identityPickerService.getIdentity(customerId, AdminUserService.getAdminUser(servletRequest));
             if (previousIdentity.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(IdentityRestConstants.ERROR_NOT_FOUND_RESOURCE).build();
             }
-            IdentityChangeResponse response = IdentityPickerService.getInstance().updateIdentity(customerId, data, previousIdentity.get(), AdminUserService.getAdminUser(servletRequest));
-            int httpCode = IdentityPickerService.getInstance().getHttpCodeFromResponse(response);
-            return Response.status(httpCode).entity(response).build();
+            IdentityChangeResponse response = _identityPickerService.updateIdentity(customerId, data, previousIdentity.get(), AdminUserService.getAdminUser(servletRequest));
+            int httpCode = _identityPickerService.getHttpCodeFromResponse(response);
+            return jsonResponse(httpCode, response);
         } catch (IdentityStoreException e) {
             AppLogService.error(IdentityRestConstants.ERROR_INTERNAL_SERVER, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -224,19 +259,19 @@ public class IdentityRestService {
         }
         
         try {
-            Optional<IdentityHistory> history = IdentityPickerService.getInstance().getIdentityHistory(customerId, AdminUserService.getAdminUser(request));
+            Optional<IdentityHistory> history = _identityPickerService.getIdentityHistory(customerId, AdminUserService.getAdminUser(request));
             
             if (history.isPresent()) {
                 IdentityHistory historyData = history.get();
-                return Response.ok(historyData).build();
+                return jsonResponse(Response.Status.OK.getStatusCode(), historyData);
             } else {
                 Map<String, Object> emptyHistory = new HashMap<>();
                 emptyHistory.put("identity_changes", new java.util.ArrayList<>());
                 emptyHistory.put("attribute_histories", new java.util.ArrayList<>());
-                return Response.ok(emptyHistory).build();
+                return jsonResponse(Response.Status.OK.getStatusCode(), emptyHistory);
             }
         } catch (Exception e) {
-            AppLogService.error("Error processing history for customer " + customerId, e);
+            AppLogService.error("Error processing history for customer {}", customerId, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity("Error processing history: " + e.getMessage())
                            .build();
@@ -252,16 +287,16 @@ public class IdentityRestService {
         }
         
         try {
-            Optional<List<IdentityTaskDto>> tasks = IdentityPickerService.getInstance().getIdentityTasks(customerId, AdminUserService.getAdminUser(request));
+            Optional<List<IdentityTaskDto>> tasks = _identityPickerService.getIdentityTasks(customerId, AdminUserService.getAdminUser(request));
             
             if (tasks.isPresent()) {
                 List<IdentityTaskDto> tasksData = tasks.get();
-                return Response.ok(tasksData).build();
+                return jsonResponse(Response.Status.OK.getStatusCode(), tasksData);
             } else {
-                return Response.ok(new java.util.ArrayList<>()).build();
+                return jsonResponse(Response.Status.OK.getStatusCode(), new java.util.ArrayList<>());
             }
         } catch (Exception e) {
-            AppLogService.error("Error processing tasks for customer " + customerId, e);
+            AppLogService.error("Error processing tasks for customer {}", customerId, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity("Error processing tasks: " + e.getMessage())
                            .build();
@@ -276,8 +311,8 @@ public class IdentityRestService {
             return Response.status(Response.Status.FORBIDDEN).entity(IdentityRestConstants.ERROR_UNAUTHORIZED).build();
         }
         try {
-            IdentityTaskCreateResponse response = IdentityPickerService.getInstance().createAccountTask(customerId, AdminUserService.getAdminUser(request));
-            return Response.status(Response.Status.CREATED).entity(response).build();
+            IdentityTaskCreateResponse response = _identityPickerService.createAccountTask(customerId, AdminUserService.getAdminUser(request));
+            return jsonResponse(Response.Status.CREATED.getStatusCode(), response);
         } catch (IdentityStoreException e) {
             AppLogService.error(IdentityRestConstants.ERROR_INTERNAL_SERVER, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -292,8 +327,8 @@ public class IdentityRestService {
             return Response.status(Response.Status.FORBIDDEN).entity(IdentityRestConstants.ERROR_UNAUTHORIZED).build();
         }
         try {
-            IdentityTaskCreateResponse response = IdentityPickerService.getInstance().createEmailValidationTask(customerId, AdminUserService.getAdminUser(request));
-            return Response.status(Response.Status.CREATED).entity(response).build();
+            IdentityTaskCreateResponse response = _identityPickerService.createEmailValidationTask(customerId, AdminUserService.getAdminUser(request));
+            return jsonResponse(Response.Status.CREATED.getStatusCode(), response);
         } catch (IdentityStoreException e) {
             AppLogService.error(IdentityRestConstants.ERROR_INTERNAL_SERVER, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -310,7 +345,7 @@ public class IdentityRestService {
         if (identities.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).entity(IdentityRestConstants.EMPTY_OBJECT).build();
         }
-        return Response.ok(identities).build();
+        return jsonResponse(Response.Status.OK.getStatusCode(), identities);
     }
 
     /**

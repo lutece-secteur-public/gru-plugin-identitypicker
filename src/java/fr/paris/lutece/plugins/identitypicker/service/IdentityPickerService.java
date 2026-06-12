@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,49 +49,39 @@ import fr.paris.lutece.plugins.identitystore.v3.web.service.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.service.ReferentialService;
 import fr.paris.lutece.plugins.identitystore.v3.web.service.ServiceContractServiceExtended;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * Service class for managing identities in the Identity Picker plugin.
  * This class provides methods for searching, creating, and updating identities,
  * as well as retrieving rules and referential data.
  */
+@ApplicationScoped
+@Named( "identitypicker.identityPickerService" )
 public class IdentityPickerService {
-    private static final String PROPERTY_DEFAULT_CLIENT_CODE = "identitypicker.default.client.code";
-    private static final String BEAN_IDENTITY_SERVICE = "identityService.rest.httpAccess";
-    private static final String BEAN_REFERENTIAL_SERVICE = "identity.ReferentialService";
-    private static final String BEAN_CONTRACT_SERVICE = "identity.serviceContractService";
     private static final String ERROR_SEARCHING_IDENTITIES = "Error while searching identities: ";
 
-    private static IdentityPickerService instance;
-    private final IdentityService identityService;
-    private final String clientCode;
-    private final ReferentialService referentialService;
-    private final ServiceContractServiceExtended serviceContract;
+    @Inject
+    @Named( "identityService.rest.httpAccess" )
+    private IdentityService identityService;
 
-    /**
-     * Private constructor for singleton pattern.
-     * Initializes the necessary services and client code.
-     */
-    private IdentityPickerService() {
-        this.identityService = SpringContextService.getBean(BEAN_IDENTITY_SERVICE);
-        this.clientCode = AppPropertiesService.getProperty(PROPERTY_DEFAULT_CLIENT_CODE);
-        this.referentialService = SpringContextService.getBean(BEAN_REFERENTIAL_SERVICE);
-        this.serviceContract = SpringContextService.getBean(BEAN_CONTRACT_SERVICE);
-    }
+    @Inject
+    @ConfigProperty( name = "identitypicker.default.client.code", defaultValue = "" )
+    private String clientCode;
 
-    /**
-     * Gets the singleton instance of IdentityPickerService.
-     * @return The IdentityPickerService instance
-     */
-    public static IdentityPickerService getInstance() {
-        if (instance == null) {
-            instance = new IdentityPickerService();
-        }
-        return instance;
-    }
+    @Inject
+    @Named( "identity.ReferentialService" )
+    private ReferentialService referentialService;
+
+    @Inject
+    @Named( "identity.serviceContractService" )
+    private ServiceContractServiceExtended serviceContract;
 
     /**
      * Searches for identities based on given criteria.
@@ -124,6 +114,7 @@ public class IdentityPickerService {
 
     /**
      * Gets the rules and referential data.
+     * @param request The HTTP request
      * @param luteceUser The current Lutece user
      * @return A Rules object containing referential data and service contract
      * @throws IdentityStoreException If an error occurs while fetching the data
@@ -306,7 +297,7 @@ public class IdentityPickerService {
             LocalDate date = LocalDate.parse(isoDate);
             return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         } catch (Exception e) {
-            AppLogService.error("Can't convert the date: " + isoDate, e);
+            AppLogService.error("Can't convert the date: {}", isoDate, e);
             return isoDate;
         }
     }
@@ -378,7 +369,7 @@ public class IdentityPickerService {
             final IdentityTaskListGetResponse response = identityService.getIdentityTaskList(customerId, IdentityResourceType.CUID.name(), clientCode, createRequestAuthor(luteceUser));
             return isSuccess(response) ? Optional.ofNullable(response.getTasks()) : Optional.empty();
         } catch (final IdentityStoreException e) {
-            AppLogService.error("An error occurred trying to get the task list associated to identity " + customerId, e);
+            AppLogService.error("An error occurred trying to get the task list associated to identity {}", customerId, e);
             return Optional.empty();
         }
     }

@@ -1,6 +1,6 @@
 package fr.paris.lutece.plugins.identitypicker.business;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 public class IdentitySearchCriteria
 {
