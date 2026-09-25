@@ -64,7 +64,7 @@
             selection: ${selection?c},
             autoFill: ${autoFill?c},
             create_task: ${createTask?c},
-            cuid: '${cuid}',
+            cuid: '${cuid?js_string}',
             fieldMapping: ${fieldMappings}
         };
         const userConfig = JSON.parse('${config?json_string}');

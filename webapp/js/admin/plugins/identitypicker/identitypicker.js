@@ -544,6 +544,9 @@ export default class IdentityPicker {
      * @returns {void}
      */
     openModal() {
+        clearTimeout(this.closeTimer);
+        clearTimeout(this.resetTimer);
+        this.modal.classList.remove('ip-modal-closing');
         this.modal.style.display = 'flex';
         const hasSearchPermission = this.permissions.search;
         const hasViewPermission = this.permissions.view;
@@ -571,14 +574,17 @@ export default class IdentityPicker {
      * @returns {void}
      */
     closeModal() {
+        if (!this.modal.classList.contains('ip-modal-open')) {
+            return;
+        }
         this.modal.classList.remove('ip-modal-open');
         this.modal.classList.add('ip-modal-closing');
-        setTimeout(() => {
+        this.closeTimer = setTimeout(() => {
             document.body.style.overflow = '';
             this.modal.style.display = 'none';
             this.modal.classList.remove('ip-modal-closing');
             // Reset forms after modal is fully closed
-            setTimeout(() => {
+            this.resetTimer = setTimeout(() => {
                 this.resetSearchForms();
             }, 200);
         }, 300);
